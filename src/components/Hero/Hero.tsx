@@ -28,7 +28,7 @@ function Hero() {
     })
   }, [])
   return (
-    <div className="bg-gradient-to-b from-gray-100 to-gray-300 dark:from-black dark:via-gray-900/40 dark:to-black text-gray-900 dark:text-white min-h-[101vh] h-auto flex ll:flex-row  items-center justify-between  px-10 relative overflow-hidden">
+    <div className="bg-gradient-to-b px-10 from-gray-100 to-gray-300 dark:from-black dark:via-gray-900/40 dark:to-black text-gray-900 dark:text-white min-h-[101vh] h-auto flex lg:flex-row  items-center justify-between   relative overflow-hidden">
       <div className='max-w-xl ml-[5%] z-10 mt-[90%] md:mt-[60%] lg:mt-6'>
         <div>
           <div className='flex items-center gap-3'>
@@ -46,9 +46,11 @@ function Hero() {
           I have experience in both frontend and backend development, and I love to learn new technologies.
         </p>
       </div>
-      <Spline id='threedobj' className='absolute  lg:-top-5 top-[-20%] bottom-0 lg:left-[25%] sm:left-[-2%] h-full'
+
+        {/* <Spline
+       className='absolute  lg:-top-5 top-[-20%] bottom-0 lg:left-[25%] sm:left-[-2%] h-full'
         scene="https://prod.spline.design/37elYHcaYVZ2zixu/scene.splinecode" 
-      />
+      />  */}
     </div>
   )
 }

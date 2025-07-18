@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/contexts/theme-context";
-
+import Headers from "@/components/Navbar/Navbar";
+import Loader from "@/components/Loader";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -25,14 +26,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <ThemeProvider defaultTheme="light" storageKey="nlti-ui-theme">
 
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      <ThemeProvider defaultTheme="light" storageKey="nlti-ui-theme">
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-        {children}
-      </body>
-        </ThemeProvider>
+          <Headers />
+          {children}
+          {/* <Loader /> */}
+        </body>
+      </ThemeProvider>
     </html>
   );
 }
