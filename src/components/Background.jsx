@@ -24,7 +24,7 @@ const Background = () => {
                 yPercent: -200,
                 duration: 2.5,
                 ease: 'power4.inOut',
-                delay: 1,
+                delay: 0.2,
                 onComplete: () => {
                     // Remove the mask after animation
                     if (maskRectRef.current) {

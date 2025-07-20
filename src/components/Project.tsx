@@ -3,6 +3,7 @@ import React, { use, useRef } from 'react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react';
 import ScrollTrigger from 'gsap-trial/ScrollTrigger';
+import { Card } from './ui/card';
 gsap.registerPlugin(ScrollTrigger);
 function Project() {
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -43,12 +44,10 @@ function Project() {
                 gsap.fromTo(card, {
                     scale: 1,
                     opacity: 1,
-                    filter: "blur(0px)"
                 },
                     {
                         scale: 0.6,
                         opacity: 0,
-                        filter: "blur(12px)",
                         ease: 'none',
                         scrollTrigger: {
                             trigger: card,
@@ -65,51 +64,55 @@ function Project() {
     }, { scope: scrollRef })
 
     return (
-        <div className='bg-gradient-to-b md:px-14 px-7 from-gray-100 to-gray-300 dark:from-black dark:via-gray-900/40 dark:to-black text-gray-900 dark:text-white flex flex-col items-center justify-center'>
+        <div className='bg-gradient-to-b from-violet-950/60 via-violet-800/40 to-black md:px-14 px-7    flex flex-col items-center justify-center'>
+            <h1 className='md:text-6xl my-7 text-4xl font-bold italic uppercase tracking-tight w-fit relative flex items-center justify-center'>
+                <span className="relative bg-clip-text text-white ">
+                    What I{"'"}ve Built
+                    <span className='absolute rounded left-0 top-full h-2 w-full bg-purple-800'>
 
-            <h1 className='md:text-8xl my-7 text-6xl font-bold italic uppercase tracking-tight w-fit relative   flex items-center justify-center   '>
-                What I{"'"}ve Built: <br /> Real-World Projects, Passion-Fueled Code
+                    </span>
+                </span>
             </h1>
-            <div ref={scrollRef} className='pinned flex flex-col'>
+            <div ref={scrollRef} className='pinned flex flex-col '>
                 <section className='card pinned w-full h-screen flex itmex-center justify-center'>
-                    <div className='md:w-4/5 w-full md:h-11/12 h-4/5 flex md:flex-row flex-col md:p-10 p-5 bg-gradient-to-br from-purple-900/30 to-indigo-900/30 backdrop-blur-3xl rounded-2xl m-auto'>
+                    <Card className='md:w-4/5 w-full md:h-11/12 h-4/5 flex md:flex-row flex-col md:p-10 p-5  m-auto bg-black/20  backdrop-blur-3xl rounded-none '>
                         <img src='/card1.jpg' alt='Project Image' className='w-2/5 m-auto h-full object-cover rounded' />
                         <div className='flex flex-col items-start justify-center w-3/5 p-10'>
                             <h2 className='text-4xl font-bold mb-4'>Project Title</h2>
                             <p className='text-lg mb-6'>This is a brief description of the project. It showcases my skills in web development and design.</p>
                             <a href='#' className='text-blue-500 hover:underline'>View Project</a>
                         </div>
-                    </div>
+                    </Card>
                 </section>
                 <section className='card pinned w-full h-screen'>
-                    <div className='md:w-4/5 w-full md:h-11/12 h-4/5 flex md:flex-row flex-col md:p-10 p-5 bg-gradient-to-br from-blue-900/30 to-cyan-900/30 backdrop-blur-2xl rounded-2xl m-auto'>
+                    <Card className='md:w-4/5 w-full md:h-11/12 h-4/5 flex md:flex-row flex-col md:p-10 p-5  m-auto bg-black/20  backdrop-blur-3xl rounded-none'>
                         <img src='/card1.jpg' alt='Project Image' className='w-2/5 m-auto h-full object-cover rounded' />
                         <div className='flex flex-col items-start justify-center w-3/5 p-10'>
                             <h2 className='text-4xl font-bold mb-4'>Project Title</h2>
                             <p className='text-lg mb-6'>This is a brief description of the project. It showcases my skills in web development and design.</p>
                             <a href='#' className='text-blue-500 hover:underline'>View Project</a>
                         </div>
-                    </div>
+                    </Card>
                 </section>
                 <section className='card pinned w-full h-screen'>
-                    <div className='md:w-4/5 w-full md:h-11/12 h-4/5 flex md:flex-row flex-col md:p-10 p-5 bg-gradient-to-br from-emerald-900/30 to-teal-900/30 backdrop-blur-2xl rounded-2xl m-auto'>
+                    <Card className='md:w-4/5 w-full md:h-11/12 h-4/5 flex md:flex-row flex-col md:p-10 p-5  m-auto bg-black/20  backdrop-blur-3xl rounded-none'>
                         <img src='/card1.jpg' alt='Project Image' className='md:w-2/5 w-full m-auto h-full object-cover rounded' />
                         <div className='flex flex-col items-start justify-center md:w-3/5 w-full p-10'>
                             <h2 className='text-4xl font-bold mb-4'>Project Title</h2>
                             <p className='text-lg mb-6'>This is a brief description of the project. It showcases my skills in web development and design.</p>
                             <a href='#' className='text-blue-500 hover:underline'>View Project</a>
                         </div>
-                    </div>
+                    </Card>
                 </section>
                 <section ref={lastRef} className='card pinned w-full h-screen'>
-                    <div className='md:w-4/5 w-full md:h-11/12 h-4/5 flex md:flex-row flex-col md:p-10 p-5 bg-gradient-to-br from-rose-900/30 to-pink-900/30 backdrop-blur-2xl rounded-2xl m-auto'>
+                    <Card className='md:w-4/5 w-full md:h-11/12 h-4/5 flex md:flex-row flex-col md:p-10 p-5  m-auto bg-black/20  backdrop-blur-3xl rounded-none'>
                         <img src='/card1.jpg' alt='Project Image' className='w-2/5 m-auto h-full object-cover rounded' />
                         <div className='flex flex-col items-start justify-center w-3/5 p-10'>
                             <h2 className='text-4xl font-bold mb-4'>Project Title</h2>
                             <p className='text-lg mb-6'>This is a brief description of the project. It showcases my skills in web development and design.</p>
                             <a href='#' className='text-blue-500 hover:underline'>View Project</a>
                         </div>
-                    </div>
+                    </Card>
                 </section>
                 {/* <section ref={lastRef} className='card  w-full h-screen '>
                     <img src='/card3.jpg' alt='Project Image' className='w-full m-auto h-full object-cover' />
