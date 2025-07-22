@@ -1,10 +1,11 @@
 'use client'
 import React, { useState } from 'react';
+import CircularText from './ui/Circulartext';
 
 const Footer = () => {
   const [email, setEmail] = useState('');
 
-  const handleSubmit = (e:any) => {
+  const handleSubmit = (e: any) => {
     e.preventDefault();
     // Handle email subscription logic here
     console.log('Email submitted:', email);
@@ -12,22 +13,21 @@ const Footer = () => {
   };
 
   return (
-    <footer className="relative bg-gradient-to-b from-violet-800 via-violet-950 to-black shadow-inner px-8 py-16">
+    <footer className="relative bg-gradient-to-b from-purple-800 via-purple-950 to-black backdrop-blur-2xl shadow-inner  py-16 pb-0 "
+>
       {/* Black shadow blur effect */}
-      <div className="absolute inset-x-0 -top-32 h-32 bg-gradient-to-b from-transparent via-black/40 to-black/90 backdrop-blur-2xl pointer-events-none"></div>
-      
-      {/* Extra layer for smoother transition */}
-      <div className="absolute inset-x-0 -top-16 h-16 bg-gradient-to-b from-transparent to-black/80 pointer-events-none"></div>
-      
-      <div className="max-w-7xl mx-auto relative">
+
+      <div className="mx-10 relative pb-16">
         {/* Main Brand */}
-        <div className="mb-12">
-          <h1 className="text-6xl md:text-8xl font-bold  mb-2">
-            ROHAN.DEV
+        <div className="mb-12 flex justify-between items-center">
+          <h1 className="text-9xl tracking-tighter font-bold ">
+            ROHANDEV
           </h1>
-          <p className=" text-lg font-medium">
-            Crafted with passion
-          </p>
+
+          <div className='relative'>
+
+
+          </div>
         </div>
 
         {/* Footer Content Grid */}
@@ -76,41 +76,8 @@ const Footer = () => {
           </div>
 
           {/* Newsletter Section */}
-          <div>
-            <h3 className=" font-semibold mb-4 uppercase tracking-wide">
-              NEWSLETTER
-            </h3>
-            <p className=" mb-4 text-sm">
-              Subscribe for project updates
-            </p>
-            
-            <div className="relative">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email"
-                className="w-full bg-transparent border-b-2 border-red-500  placeholder-red-300 pb-2 focus:outline-none focus:border-red-600 transition-colors duration-200"
-              />
-              <button
-                onClick={handleSubmit}
-                className="absolute right-0 bottom-2  hover:text-red-600 transition-colors duration-200"
-              >
-                <svg 
-                  className="w-5 h-5" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M17 8l4 4m0 0l-4 4m4-4H3" 
-                  />
-                </svg>
-              </button>
-            </div>
+          <div className='flex ittems-center'>
+            <CircularText text='ROHAN*DEVELOPER*' className="absolute top-0 left-0 w-24 h-24 text-red-500 animate-spin-slow" />
           </div>
         </div>
 
@@ -120,17 +87,28 @@ const Footer = () => {
             <span>Built with </span>
             <a href="#" className="hover:underline">React & Tailwind</a>
           </div>
-          
+
           <div className="flex flex-col md:flex-row gap-4  text-sm">
             <a href="#" className="hover:underline">Privacy Policy</a>
             <span>Copyright 2025 Rohan.dev</span>
           </div>
-          
+
           <div className=" text-sm mt-4 md:mt-0">
             <p>Open to new opportunities and collaborations.</p>
           </div>
         </div>
       </div>
+      {/* <div className='h-72 -mt-14'>
+        <video
+          className="w-full h-full object-cover"
+          src="/assets/background.mp4"
+          loop
+          muted
+          autoPlay
+          playsInline
+          style={{clipPath:"polygon(37% 0, 100% 0, 100% 100%, 75% 100%, 0 100%, 0 18%, 33% 18%)"}}
+        />
+      </div> */}
     </footer>
   );
 };
