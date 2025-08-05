@@ -11,11 +11,11 @@ import SkillSection from "@/components/SkillsSection";
 import Footer from "@/components/Footer";
 export default function Home() {
   return (
-    <div className="bg-white dark:bg-black">
-      {/* <Background /> */}
-      {/* <About /> */}
-     {/* <Project /> */}
-      <ScrollBasedVelocityDemo/>
+    <div className="bg-white dark:bg-black overflow-x-hidden">
+      <Background />
+      <About />
+      <Project />
+      <ScrollBasedVelocityDemo />
       <MyServices />
       <SkillSection />
       <Footer />
