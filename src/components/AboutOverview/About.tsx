@@ -1,6 +1,5 @@
 'use client';
 import React from 'react'
-import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card";
 import { useInView } from "react-intersection-observer";
 import {
   AnimatedSpan,
@@ -8,7 +7,6 @@ import {
   TypingAnimation,
 } from "@/components/magicui/terminal";
 import Lanyard from './Lanyard'
-import { VelocityScroll } from "@/components/magicui/scroll-based-velocity";
 function About() {
   const { ref, inView } = useInView({
     triggerOnce: true,
@@ -39,7 +37,7 @@ function About() {
                 </AnimatedSpan>
 
                 <AnimatedSpan delay={1750} className="text-green-500">
-                  <span className="text-wrap">🚀 I'm passionate about solving real-world problems.</span>
+                  <span className="text-wrap">🚀 I{"'"}m passionate about solving real-world problems.</span>
                 </AnimatedSpan>
 
                 <AnimatedSpan delay={2000} className="text-green-500">

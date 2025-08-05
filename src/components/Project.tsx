@@ -1,5 +1,5 @@
 'use client'
-import React, { use, useRef } from 'react'
+import React, {  useRef } from 'react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react';
 import ScrollTrigger from 'gsap-trial/ScrollTrigger';
@@ -18,8 +18,8 @@ function Project() {
         cards.forEach((card, index, cards) => {
             const currentCard = card as HTMLElement;
             const nextSection = (cards[index + 1] as HTMLElement) || lastRef.current;
-            let endScalePoin = `top+=${nextSection.offsetTop - currentCard.offsetTop} top`;
-            const image = currentCard.querySelector('img') as HTMLImageElement;
+            const endScalePoin = `top+=${nextSection.offsetTop - currentCard.offsetTop} top`;
+            // const image = currentCard.querySelector('img') as HTMLImageElement;
             let endValue;
             if (index === cards.length - 1) {
                 // For the last card, end at the top of the footer

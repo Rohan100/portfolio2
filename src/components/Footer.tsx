@@ -1,16 +1,10 @@
 'use client'
-import React, { useState } from 'react';
+import React from 'react';
 import CircularText from './ui/Circulartext';
 
 const Footer = () => {
-  const [email, setEmail] = useState('');
 
-  const handleSubmit = (e: any) => {
-    e.preventDefault();
-    // Handle email subscription logic here
-    console.log('Email submitted:', email);
-    setEmail('');
-  };
+
 
   return (
     <footer className="relative bg-gradient-to-b from-purple-800 via-purple-950 to-black backdrop-blur-2xl shadow-inner  py-16 pb-0 "

@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect } from 'react'
 import Lenis from 'lenis'
-import { useGSAP } from '@gsap/react'
+
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import gsap from 'gsap';
 gsap.registerPlugin(ScrollTrigger)
@@ -10,7 +10,7 @@ function MyServices() {
     useEffect(() => {
         const lenis = new Lenis();
 
-        lenis.on('scroll', (e) => {
+        lenis.on('scroll', () => {
             ScrollTrigger.update()
         })
         gsap.ticker.add((time) => {
@@ -38,11 +38,11 @@ function MyServices() {
                         end: "center top", // End earlier for more gradual transition
                         scrub: 5, // Increased scrub for much slower animation
                         onUpdate: (self) => {
-                            let progress = self.progress;
+                            const progress = self.progress;
                             // Smoother easing curve
                             let easedProgress = gsap.utils.interpolate(0, 1, progress);
                             easedProgress = Math.pow(easedProgress, 0.7); // Custom easing for smoother start
-                            let newWidth = 30 + 70 * easedProgress;
+                            const newWidth = 30 + 70 * easedProgress;
                             gsap.set(imgContainer, {
                                 width: newWidth + "%",
                                 duration: 0.6,
@@ -58,12 +58,12 @@ function MyServices() {
                         end: "center top",
                         scrub: 6, // Even slower for height changes
                         onUpdate: (self) => {
-                            let progress = self.progress;
+                            const progress = self.progress;
                             // Much more subtle height change
                             let easedProgress = gsap.utils.interpolate(0, 1, progress);
                             easedProgress = Math.pow(easedProgress, 0.8);
                             // Reduced height variation from 300px to 100px for subtlety
-                            let newHeight = 208 + 300 * easedProgress; // 192px = h-52 in Tailwind (12rem)
+                            const newHeight = 208 + 300 * easedProgress; // 192px = h-52 in Tailwind (12rem)
                             gsap.set(service, {
                                 height: newHeight + "px",
                                 duration: 0.6,

@@ -1,7 +1,6 @@
 'use client';
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { ChevronDown, Menu, X, User, ShoppingCart } from "lucide-react";
+import {  Menu, X } from "lucide-react";
 import Link from "next/link";
 import {
   motion,
@@ -9,17 +8,15 @@ import {
   useScroll,
   useMotionValueEvent,
 } from "motion/react";
-import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./ThemeToggle";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isCoursesOpen, setIsCoursesOpen] = useState(false);
   const { scrollYProgress } = useScroll();
   const [visible, setVisible] = useState(true);
   const [isAtTop, setIsAtTop] = useState(true);
-
+  console.log("isAtTop", isAtTop);
   useGSAP(()=>{
     gsap.fromTo(".nav-nav-link",{
       opacity:0,
@@ -41,7 +38,7 @@ const Header = () => {
       if (isCurrentlyAtTop) {
         setVisible(true);
       } else {
-        let direction = current! - scrollYProgress.getPrevious()!;
+        const direction = current! - scrollYProgress.getPrevious()!;
         if (direction < 0) {
           setVisible(true);
         } else {
@@ -142,7 +139,7 @@ const Header = () => {
             >
               <div className="px-4 py-6 max-w-7xl mx-auto">
                 <nav className="flex flex-col space-y-4">
-                  {["Home", "About", "Contact"].map(i => <motion.div
+                  {["Home", "About", "Contact"].map((i) => <motion.div key={i}
                     initial={{ y: -20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 1.2 }}
