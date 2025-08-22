@@ -4,7 +4,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { mask } from 'motion/react-client';
 import { useGSAP } from '@gsap/react';
-
+import Image from 'next/image';
+import { CustomEase } from 'gsap/CustomEase';
+gsap.registerPlugin(CustomEase);
 const Background = () => {
     const textRef = useRef(null);
     const maskRectRef = useRef(null);
@@ -20,13 +22,14 @@ const Background = () => {
                 transformOrigin: 'center',
             },
             {
-                scale: 220,
-                yPercent: -200,
-                duration: 2.5,
-                ease: 'power4.inOut',
-                delay: 0.2,
+                scale: 80,
+                // yPercent: -200,
+                xPercent: -70,
+                ease: "power2.in",
+                duration: 3.5,
+                delay: 0.3,
                 onComplete: () => {
-                    // Remove the mask after animation
+                    // Rem3ove the mask after animation
                     if (maskRectRef.current) {
                         maskRectRef.current.removeAttribute('mask');
                         setMaskRemoved(true);
@@ -64,6 +67,7 @@ const Background = () => {
                 autoPlay
                 playsInline
             />
+           
 
             {/* SVG Mask Overlay */}
             <svg
@@ -81,7 +85,7 @@ const Background = () => {
                             x="50%"
                             y="50%"
                             textAnchor="middle"
-                            className="text-[7px] md:text-[9px] font-black uppercase tracking-[0.8px] lg:tracking-[0.4px]"
+                            className="text-[7px] md:text-[8px] font-black uppercase tracking-[0.8px] lg:tracking-[0.4px]"
                             style={{
                                 fontFamily: 'Raleway, sans-serif',
                                 fill: 'black',
