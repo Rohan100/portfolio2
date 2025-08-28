@@ -1,51 +1,66 @@
 /* eslint-disable react/no-unknown-property */
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, Suspense } from 'react';
 import { Canvas, extend, useFrame } from '@react-three/fiber';
 import { useGLTF, useTexture, Environment, Lightformer } from '@react-three/drei';
 import { BallCollider, CuboidCollider, Physics, RigidBody, useRopeJoint, useSphericalJoint } from '@react-three/rapier';
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
-
-// replace with your own imports, see the usage snippet for details
-
 import * as THREE from 'three';
 
 extend({ MeshLineGeometry, MeshLineMaterial });
 
-export default function Lanyard({ position = [0, 0, 30], gravity = [0, -40, 0], fov = 20, transparent = true }) {
+// Loading fallback component
+function Loader() {
   return (
-    <div className="lanyard-wrapper">
-      <Canvas
-        camera={{ position: position, fov: fov }}
-        gl={{ alpha: transparent }}
-        onCreated={({ gl }) => gl.setClearColor(new THREE.Color(0x000000), transparent ? 0 : 1)}
-      >
-        <ambientLight intensity={Math.PI} />
-        <Physics gravity={gravity} timeStep={1 / 60}>
-          <Band />
-        </Physics>
-        <Environment blur={0.75}>
-          <Lightformer intensity={2} color="white" position={[0, -1, 5]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
-          <Lightformer intensity={3} color="white" position={[-1, -1, 1]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
-          <Lightformer intensity={3} color="white" position={[1, 1, 1]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
-          <Lightformer intensity={10} color="white" position={[-10, 0, 14]} rotation={[0, Math.PI / 2, Math.PI / 3]} scale={[100, 10, 1]} />
-        </Environment>
-      </Canvas>
+    <div className="flex items-center justify-center h-96">
+      <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
     </div>
   );
 }
+
+// Error boundary component
+function ErrorFallback({ error, resetErrorBoundary }) {
+  return (
+    <div className="flex items-center justify-center h-96 bg-gray-100 rounded-lg">
+      <div className="text-center">
+        <p className="text-red-500 mb-4">3D Scene failed to load</p>
+        <button 
+          onClick={resetErrorBoundary}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Try again
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function Band({ maxSpeed = 50, minSpeed = 0 }) {
   const band = useRef(), fixed = useRef(), j1 = useRef(), j2 = useRef(), j3 = useRef(), card = useRef();
   const vec = new THREE.Vector3(), ang = new THREE.Vector3(), rot = new THREE.Vector3(), dir = new THREE.Vector3();
   const segmentProps = { type: 'dynamic', canSleep: true, colliders: false, angularDamping: 4, linearDamping: 4 };
-  const { nodes, materials } = useGLTF('/card.glb');
+  
+  // Add error handling for GLTF loading
+  const { nodes, materials } = useGLTF('/card.glb', true);
   const texture = useTexture('/lanyard.jpg');
+  
   const [curve] = useState(() => new THREE.CatmullRomCurve3([new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()]));
   const [dragged, drag] = useState(false);
   const [hovered, hover] = useState(false);
-  const [isSmall, setIsSmall] = useState(() =>
-    typeof window !== 'undefined' && window.innerWidth < 1024
-  );
+  const [isSmall, setIsSmall] = useState(false);
+
+  // Better window size handling
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSmall(window.innerWidth < 1024);
+    };
+
+    // Set initial value
+    handleResize();
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]);
   useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1]);
@@ -58,16 +73,6 @@ function Band({ maxSpeed = 50, minSpeed = 0 }) {
       return () => void (document.body.style.cursor = 'auto');
     }
   }, [hovered, dragged]);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsSmall(window.innerWidth < 1024);
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   useFrame((state, delta) => {
     if (dragged) {
@@ -96,6 +101,11 @@ function Band({ maxSpeed = 50, minSpeed = 0 }) {
 
   curve.curveType = 'chordal';
   texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+
+  // Add safety checks for nodes and materials
+  if (!nodes?.card || !materials?.base) {
+    return null; // or return a fallback mesh
+  }
 
   return (
     <>
@@ -140,5 +150,43 @@ function Band({ maxSpeed = 50, minSpeed = 0 }) {
         />
       </mesh>
     </>
+  );
+}
+
+export default function Lanyard({ position = [0, 0, 30], gravity = [0, -40, 0], fov = 20, transparent = true }) {
+  const [error, setError] = useState(null);
+
+  const handleError = (error) => {
+    console.error('Lanyard component error:', error);
+    setError(error);
+  };
+
+  if (error) {
+    return <ErrorFallback error={error} resetErrorBoundary={() => setError(null)} />;
+  }
+
+  return (
+    <div className="lanyard-wrapper h-96">
+      <Suspense fallback={<Loader />}>
+        <Canvas
+          camera={{ position: position, fov: fov }}
+          gl={{ alpha: transparent }}
+          frameloop="demand"
+          onCreated={({ gl }) => gl.setClearColor(new THREE.Color(0x000000), transparent ? 0 : 1)}
+          onError={handleError}
+        >
+          <ambientLight intensity={Math.PI} />
+          <Physics gravity={gravity} timeStep={1 / 30}>
+            <Band />
+          </Physics>
+          <Environment blur={0.75}>
+            <Lightformer intensity={2} color="white" position={[0, -1, 5]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
+            <Lightformer intensity={3} color="white" position={[-1, -1, 1]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
+            <Lightformer intensity={3} color="white" position={[1, 1, 1]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
+            <Lightformer intensity={10} color="white" position={[-10, 0, 14]} rotation={[0, Math.PI / 2, Math.PI / 3]} scale={[100, 10, 1]} />
+          </Environment>
+        </Canvas>
+      </Suspense>
+    </div>
   );
 }

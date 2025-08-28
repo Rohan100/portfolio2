@@ -26,8 +26,8 @@ const Background = () => {
                 // yPercent: -200,
                 xPercent: -70,
                 ease: "power2.in",
-                duration: 3.5,
-                delay: 0.3,
+                duration: 2.5,
+                delay: 0.5,
                 onComplete: () => {
                     // Rem3ove the mask after animation
                     if (maskRectRef.current) {
@@ -66,6 +66,7 @@ const Background = () => {
                 muted
                 autoPlay
                 playsInline
+                poster="/assets/background.jpg"
             />
            
 
