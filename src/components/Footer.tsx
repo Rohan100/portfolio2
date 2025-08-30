@@ -76,7 +76,7 @@ const Footer = () => {
         </div>
 
         {/* Bottom Section */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center pt-8 border-t border-red-200">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center pt-8 border-t border-purple-400">
           <div className=" text-sm mb-4 md:mb-0">
             <span>Built with </span>
             <a href="#" className="hover:underline">React & Tailwind</a>

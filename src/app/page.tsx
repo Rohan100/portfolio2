@@ -1,4 +1,3 @@
-import About from "@/components/AboutOverview/About";
 import Project from "@/components/Project";
 import Background from "@/components/Background";
 import ScrollBasedVelocityDemo from "@/components/ScrollVelocity";
@@ -9,7 +8,7 @@ export default function Home() {
   return (
     <div className="bg-white dark:bg-black overflow-x-hidden">
       <Background />
-      <About />
+      {/* <About /> */}
       <Project />
       <ScrollBasedVelocityDemo />
       <MyServices />

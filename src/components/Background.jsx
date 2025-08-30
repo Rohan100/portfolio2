@@ -15,7 +15,8 @@ const Background = () => {
     useGSAP(() => {
         const text = textRef.current;
         const timeline = gsap.timeline({});
-        timeline.fromTo(
+        timeline.fromTo(text,{width:0},{width:"100%",duration:0.5})
+        .fromTo(
             text,
             {
                 scale: 1,
@@ -25,8 +26,8 @@ const Background = () => {
                 scale: 80,
                 // yPercent: -200,
                 xPercent: -70,
-                ease: "power2.in",
-                duration: 2.5,
+                ease: "power2.inOut",
+                duration: 2,
                 delay: 0.5,
                 onComplete: () => {
                     // Rem3ove the mask after animation
@@ -57,11 +58,11 @@ const Background = () => {
     }, []);
 
     return (
-        <div className="relative w-full h-screen overflow-hidden">
+        <div className="relative w-full h-[calc(100vh+22px)] overflow-hidden">
             {/* Background Video */}
             <video
                 className="w-full h-full object-cover"
-                src="/assets/background.mp4"
+                src="/assets/background.webm"
                 loop
                 muted
                 autoPlay
@@ -77,7 +78,7 @@ const Background = () => {
                 preserveAspectRatio="xMidYMid slice"
             >
                 <defs>
-                    <mask id="textMask">
+                    <mask id="textMask" className='w-5 overflow-hidden'>
                         <rect fill="white" width="100%" height="100%" />
                         <text
                             ref={textRef}
@@ -86,7 +87,7 @@ const Background = () => {
                             x="50%"
                             y="50%"
                             textAnchor="middle"
-                            className="text-[7px] md:text-[8px] font-black uppercase tracking-[0.8px] lg:tracking-[0.4px]"
+                            className="text-[7px] w-2 overflow-hidden md:text-[8px] font-black uppercase tracking-[0.8px] lg:tracking-[0.4px]"
                             style={{
                                 fontFamily: 'Raleway, sans-serif',
                                 fill: 'black',
@@ -113,7 +114,7 @@ const Background = () => {
                 rel="stylesheet"
             />
             <div id="text_container" className='absolute top-0 left-0 w-full h-full grid md:grid-cols-3 md:grid-rows-1 grid-cols-1 grid-rows-3 items-center justify-items-center opacity-0'>
-                <div className='max-w-xl md:col-span-2 row-span-2 md:pt-10 pt-5 ps-5 md:row-start-1 row-start-2'>
+                <div className='max-w-xl md:col-span-2 row-span-2 md:pt-10 pt-5 ps-5 md:row-start-1 row-start-2 text-white'>
                     <div>
                         <div className='flex items-center gap-3'>
                             <h1 className='text-5xl hero-text md:text-6xl font-semibold uppercase tracking-tight'>

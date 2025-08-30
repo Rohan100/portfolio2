@@ -270,3 +270,12 @@ html.lenis body {
   font-size: 24px;
   transition: all 0.5s cubic-bezier(0, 0, 0, 1);
 }
+::-webkit-scrollbar-thumb{
+  display: none;
+}
+::-webkit-scrollbar-track{
+  display: none;
+}
+::-webkit-scrollbar{
+  display: none;
+}
