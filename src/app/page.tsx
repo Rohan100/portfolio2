@@ -1,5 +1,4 @@
 "use client";
-import Project from "@/components/Project";
 import Background from "@/components/Background";
 import ScrollBasedVelocityDemo from "@/components/ScrollVelocity";
 import MyServices from "@/components/MyServices";

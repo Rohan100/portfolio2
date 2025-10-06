@@ -7,9 +7,6 @@ import { cn } from "@/lib/utils"
 import gsap from "gsap"
 import {
   motion,
-  AnimatePresence,
-  useScroll,
-  useMotionValueEvent,
 } from "motion/react";
 import { useGSAP } from "@gsap/react"
 interface NavItem {
@@ -26,9 +23,7 @@ interface NavBarProps {
 export function NavBar({ items, className }: NavBarProps) {
   const [activeTab, setActiveTab] = useState(items[0].name)
   const [isMobile, setIsMobile] = useState(false)
-  const { scrollYProgress } = useScroll();
-  const [isAtTop, setIsAtTop] = useState(true);
-  console.log("isAtTop", isAtTop);
+
 
   useEffect(() => {
     const handleResize = () => {
