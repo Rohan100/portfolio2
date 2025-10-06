@@ -133,22 +133,22 @@ function SkillsSection() {
     }, []);
 
     return (
-        <section ref={containerRef} className='w-full min-h-screen p-10 '>
-            <div  className='flex items-center justify-center flex-col gap-4'>
+        <section ref={containerRef} className='w-full min-h-screen sm:p-10 p-5 '>
+            <div  className='flex items-center justify-center flex-col sm:gap-4 gap-2'>
                 <SparklesText>Tech Stack & Tools</SparklesText>
-                <p className='text-lg mb-6'>Languages, libraries, and environments I work with.</p>
+                <p className='text-lg sm:mb-6 mb-3'>Languages, libraries, and environments I work with.</p>
             </div>
             <div 
                 ref={skillsRef} 
-                className='flex flex-wrap justify-center gap-3 gap-y-4 mt-8 w-1/2 mx-auto'
+                className='flex flex-wrap justify-center gap-3 gap-y-4 sm:mt-8 mt-4 sm:w-1/2 w-11/12 mx-auto'
             >
                 {skills.map((skill) => (
                     <div 
                         key={skill.name} 
-                        className='skill-card flex relative rounded-3xl items-center justify-between gap-2 text-xl px-3 py-1 bg-white/10 backdrop-blur-xl hover:-translate-y-3 hover:scale-110 duration-100 cursor-pointer'
+                        className='skill-card flex relative rounded-3xl items-center justify-between sm:gap-2 gap-1 sm:text-xl text-lg sm:px-3 px-2 sm:py-1 py-0.5 bg-white/10 backdrop-blur-xl hover:-translate-y-3 hover:scale-110 duration-100 cursor-pointer'
                     >
                         <ShineBorder shineColor={["#027cf7", "#fd06c5", "#6e11b0"]} />
-                        <img src={skill.icon} alt={`${skill.name} icon`} className='w-5 h-5' />
+                        <img src={skill.icon} alt={`${skill.name} icon`} className='sm:w-5 sm:h-5 w-4 h-4' />
                         <span className='text-lg font-semibold'>{skill.name}</span>
                     </div>
                 ))}

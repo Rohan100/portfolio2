@@ -43,7 +43,8 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --animate-orbit: orbit calc(var(--duration) * 1s) linear infinite;
-   --animate-shine: shine var(--duration) infinite linear;
+  --animate-shine: shine var(--duration) infinite linear;
+
   @keyframes orbit {
     0% {
       transform: rotate(calc(var(--angle) * 1deg)) translateY(calc(var(--radius) * 1px)) rotate(calc(var(--angle) * -1deg));
@@ -180,6 +181,7 @@ html.lenis body {
 .lenis.lenis-smooth iframe {
   pointer-events: none;
 }
+
 .skill-card {
   transform-origin: center;
   will-change: transform;
@@ -189,6 +191,7 @@ html.lenis body {
 .skill-card:hover {
   z-index: 10;
 }
+
 .dock-outer {
   margin: 0 0.5rem;
   display: flex;
@@ -245,6 +248,7 @@ html.lenis body {
   color: #fff;
   transform: translateX(-50%);
 }
+
 .circular-text {
   margin: 0 auto;
   border-radius: 50%;
@@ -270,12 +274,37 @@ html.lenis body {
   font-size: 24px;
   transition: all 0.5s cubic-bezier(0, 0, 0, 1);
 }
-::-webkit-scrollbar-thumb{
+
+::-webkit-scrollbar-thumb {
   display: none;
 }
-::-webkit-scrollbar-track{
+
+::-webkit-scrollbar-track {
   display: none;
 }
-::-webkit-scrollbar{
+
+::-webkit-scrollbar {
   display: none;
 }
+
+.darkveil-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.gradient-container {
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(ellipse at bottom left,
+      #575757 0%,
+      #343434 10%,
+      #2e2e2e 15%,
+      #1f1f1f 25%,
+      #1a1a1a 35%,
+      #000000 50%,
+      #000000 100%);
+  position: relative;
+
+}
+

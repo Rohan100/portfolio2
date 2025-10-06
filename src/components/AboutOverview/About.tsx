@@ -1,117 +1,137 @@
 'use client';
-import React, { useState, useEffect } from 'react';
-import { useInView } from "react-intersection-observer";
-import {
-  AnimatedSpan,
-  Terminal,
-  TypingAnimation,
-} from "@/components/magicui/terminal";
-import dynamic from "next/dynamic";
-
-// Better lazy loading with proper error handling
-const Lanyard = dynamic(() => import("./Lanyard"), {
-  ssr: false,
-  loading: () => (
-    <div className="h-96 bg-gray-200 animate-pulse rounded-lg flex items-center justify-center">
-      <div className="text-gray-500">Loading 3D Scene...</div>
-    </div>
-  ),
-});
+import React from 'react';
+import { useEffect, useRef } from 'react';
+import gsap from 'gsap';
+import ScrollTrigger from 'gsap/ScrollTrigger';
+import SplitType from 'split-type';
+import Lenis from 'lenis'
 
 function About() {
-  const { ref, inView } = useInView({
-    triggerOnce: true,
-    threshold: 0.4,
-  });
-
-  // Add mounted state to ensure client-side rendering
-  const [mounted, setMounted] = useState(false);
+  const containerRef = useRef(null);
+  const textRef = useRef(null);
+  const lenisRef = useRef<Lenis | null>(null);
+  const rafId = useRef<number | null>(null);
 
   useEffect(() => {
-    setMounted(true);
+    gsap.registerPlugin(ScrollTrigger);
+
+    const timer = setTimeout(() => {
+      // Create sticky-like effect with GSAP instead of CSS sticky
+      if (textRef.current) {
+        // Pin the text element during scroll
+        ScrollTrigger.create({
+          trigger: containerRef.current,
+          start: "top top",
+          end: "bottom bottom",
+          pin: textRef.current,
+          pinSpacing: false
+        });
+
+        // Text reveal animation with custom colors
+        const text = new SplitType(textRef.current, { types: 'words,chars' });
+        console.log(text.chars);
+        
+        // Find the target words and their characters
+        const targetWords = ['seamless', 'digital', 'products'];
+        const normalChars: Element[] = [];
+        const specialChars: Element[] = [];
+        
+        // Get all words
+        const words = text.words || [];
+        
+        words.forEach((word) => {
+          const wordText = word.textContent?.toLowerCase().trim();
+          const isTargetWord = targetWords.includes(wordText || '');
+          
+          // Get all characters in this word
+          const wordChars = Array.from(word.querySelectorAll('.char'));
+          
+          if (isTargetWord) {
+            specialChars.push(...wordChars);
+          } else {
+            normalChars.push(...wordChars);
+          }
+        });
+        
+        // Create a single timeline for all characters to flow together
+        const allChars = text.chars || [];
+        
+        // Create a timeline that will handle all characters in order
+        gsap.fromTo(allChars, 
+          {
+            color: "#353535",
+          },
+          {
+            color: (index, element) => {
+              // Check if this character belongs to special words
+              const isSpecial = specialChars.includes(element);
+              return isSpecial ? "#8e51ff" : "white";
+            },
+            duration: 0.3,
+            stagger: 0.02,
+            scrollTrigger: {
+              trigger: containerRef.current,
+              start: 'top center',
+              end: 'bottom center',
+              scrub: true,
+              markers: false
+            }
+          }
+        );
+      }
+
+      // Initialize Lenis smooth scrolling
+      const lenis = new Lenis({
+        duration: 1.2,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      });
+      lenisRef.current = lenis;
+
+      const raf = (time: number) => {
+        if (lenisRef.current) {
+          lenisRef.current.raf(time);
+        }
+        rafId.current = requestAnimationFrame(raf);
+      };
+      
+      rafId.current = requestAnimationFrame(raf);
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+      if (rafId.current) {
+        cancelAnimationFrame(rafId.current);
+      }
+      if (lenisRef.current) {
+        lenisRef.current.destroy();
+      }
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+    };
   }, []);
 
-  // Don't render until mounted on client
-  if (!mounted) {
-    return (
-      <div className='bg-gradient-to-b px-10 grid md:grid-cols-2 items-center min-h-screen p-10'>
-        <div className='h-full w-full'>
-          <div className="h-96 bg-gray-200 animate-pulse rounded-lg flex items-center justify-center">
-            <div className="text-gray-500">Loading 3D Scene...</div>
-          </div>
-        </div>
-        <div className='flex items-center justify-center'>
-          <Terminal className="h-auto">
-            <div className="text-gray-500">Loading terminal...</div>
-          </Terminal>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className='bg-gradient-to-b px-10 grid md:grid-cols-2 items-center min-h-screen p-10'>
-      <div className='h-full w-full'>
-        <Lanyard position={[0, 0, 12]} gravity={[0, -40, 0]} />
-      </div>
-      <div ref={ref} className='flex items-center justify-center'>
-        <Terminal className="h-auto">
-          {inView && (
-            <>
-              <TypingAnimation>&gt; whoami</TypingAnimation>
-              <AnimatedSpan delay={500} className="text-green-500">
-                <span>Rohan Nagare</span>
-              </AnimatedSpan>
-              <TypingAnimation delay={750}>&gt; role</TypingAnimation>
-              <AnimatedSpan delay={1000} className="text-green-500">
-                <span>FullStack Developer</span>
-              </AnimatedSpan>
-              <TypingAnimation delay={1250}>&gt; overview</TypingAnimation>
-              <AnimatedSpan delay={1500} className="text-green-500">
-                <span className="text-wrap">🔧 I build modern web applications.</span>
-              </AnimatedSpan>
-              <AnimatedSpan delay={1750} className="text-green-500">
-                <span className="text-wrap">🚀 I{"'"}m passionate about solving real-world problems.</span>
-              </AnimatedSpan>
-              <AnimatedSpan delay={2000} className="text-green-500">
-                <span className="text-wrap">📦 I love working on and exploring new technologies.</span>
-              </AnimatedSpan>
-              <TypingAnimation delay={2250}>&gt; skills</TypingAnimation>
-              <AnimatedSpan delay={2500} className="text-green-500">
-                <span>✔ Javascript, Python, Java.</span>
-              </AnimatedSpan>
-              <AnimatedSpan delay={2750} className="text-green-500">
-                <span>✔ React, Next.</span>
-              </AnimatedSpan>
-              <AnimatedSpan delay={3000} className="text-green-500">
-                <span>✔ Nodejs, Bunjs</span>
-              </AnimatedSpan>
-              <TypingAnimation delay={3200}>&gt; contact</TypingAnimation>
-              <AnimatedSpan delay={3400}>
-                <p>
-                  <span className='text-[#df3079]'>email : </span>
-                  <span className='text-green-500'>rohannagare8355@gmail.com</span>
-                </p>
-              </AnimatedSpan>
-              <AnimatedSpan delay={3400} className="text-green-500">
-                <p>
-                  <span className='text-[#df3079]'>Github : </span>
-                  <span className='text-green-500'>github.com/rnagare</span>
-                </p>
-              </AnimatedSpan>
-              <AnimatedSpan delay={3600} className="text-green-500">
-                <p>
-                  <span className='text-[#df3079]'>linkedin : </span>
-                  <span className='text-green-500'>linkedin.com/in/rohan-nagare</span>
-                </p>
-              </AnimatedSpan>
-              <TypingAnimation delay={3800} className="text-muted-foreground">
-                Success! Project initialization completed.
-              </TypingAnimation>
-            </>
-          )}
-        </Terminal>
-      </div>
+    <div className="bg-black">
+      {/* Content before */}
+      
+      {/* Container for the pinned section */}
+      <section 
+        ref={containerRef}
+        className="h-[300vh] relative"
+      >
+        {/* This will be pinned by GSAP instead of CSS sticky */}
+        <div 
+          ref={textRef}
+          className="w-full h-screen flex items-center justify-center px-10 relative overflow-hidden"
+          
+        >
+          
+          {/* Main text content */}
+          <p className="w-4/5 max-w-6xl text-4xl md:text-6xl text-center tracking-wide leading-tight text-[#353535] relative z-10">
+            Focused on creating seamless digital products, I develop web and mobile applications that are fast, user-friendly, and built to solve real-world challenges.
+          </p>
+        </div>
+      </section>
+      
     </div>
   );
 }

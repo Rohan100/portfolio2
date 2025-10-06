@@ -6,6 +6,8 @@ import { mask } from 'motion/react-client';
 import { useGSAP } from '@gsap/react';
 import Image from 'next/image';
 import { CustomEase } from 'gsap/CustomEase';
+import DarkVeil from './ui/Darkveil';
+import { useTime } from 'framer-motion';
 gsap.registerPlugin(CustomEase);
 const Background = () => {
     const textRef = useRef(null);
@@ -15,37 +17,36 @@ const Background = () => {
     useGSAP(() => {
         const text = textRef.current;
         const timeline = gsap.timeline({});
-        timeline.fromTo(text,{width:0},{width:"100%",duration:0.5})
-        .fromTo(
-            text,
-            {
-                scale: 1,
-                transformOrigin: 'center',
-            },
-            {
-                scale: 80,
-                // yPercent: -200,
-                xPercent: -70,
-                ease: "power2.inOut",
-                duration: 2,
-                delay: 0.5,
-                onComplete: () => {
-                    // Rem3ove the mask after animation
-                    if (maskRectRef.current) {
-                        maskRectRef.current.removeAttribute('mask');
-                        setMaskRemoved(true);
-                        maskRectRef.current.style.display = 'none'
-                    }
+        timeline.fromTo(
+                text,
+                {
+                    scale: 1,
+                    transformOrigin: 'center',
                 },
-            }).fromTo("#text_container", {
-                opacity: 0,
-            },{opacity:1})
+                {
+                    scale: 80,
+                    // yPercent: -200,
+                    xPercent: -70,
+                    ease: "power2.inOut",
+                    duration: 2,
+                    delay: 0.5,
+                    onComplete: () => {
+                        // Rem3ove the mask after animation
+                        if (maskRectRef.current) {
+                            maskRectRef.current.removeAttribute('mask');
+                            setMaskRemoved(true);
+                            maskRectRef.current.style.display = 'none'
+                        }
+                    },
+                }).fromTo("#text_container", {
+                    opacity: 0,
+                }, { opacity: 1 })
             .fromTo("#animate-line", {
                 width: 0,
             }, {
                 width: "128px",
                 duration: 0.8,
-            },"<").fromTo(".hero-text", {
+            }, "<").fromTo(".hero-text", {
                 y: 30,
                 opacity: 0,
             }, {
@@ -57,19 +58,11 @@ const Background = () => {
 
     }, []);
 
+
     return (
-        <div className="relative w-full h-[calc(100vh+22px)] overflow-hidden">
-            {/* Background Video */}
-            <video
-                className="w-full h-full object-cover"
-                src="/assets/background.webm"
-                loop
-                muted
-                autoPlay
-                playsInline
-                poster="/assets/background.jpg"
-            />
-           
+        <div className="relative w-full h-screen bg-black overflow-hidden">
+
+            <DarkVeil />
 
             {/* SVG Mask Overlay */}
             <svg
@@ -78,7 +71,7 @@ const Background = () => {
                 preserveAspectRatio="xMidYMid slice"
             >
                 <defs>
-                    <mask id="textMask" className='w-5 overflow-hidden'>
+                    <mask id="textMask">
                         <rect fill="white" width="100%" height="100%" />
                         <text
                             ref={textRef}
@@ -91,10 +84,12 @@ const Background = () => {
                             style={{
                                 fontFamily: 'Raleway, sans-serif',
                                 fill: 'black',
+                                paintOrder: 'stroke fill', // ensures stroke is drawn outside text
                             }}
                         >
                             Rohan.Dev
                         </text>
+                            
                     </mask>
                 </defs>
 
@@ -104,32 +99,43 @@ const Background = () => {
                     height="100%"
                     fill="rgba(0, 0, 0)"
                     mask={maskRemoved ? undefined : 'url(#textMask)'}
-                    className={maskRemoved ? '-z-10' : ''}
+                    className={maskRemoved ? '-z-10' : 'fixed top-0 bottom-0 left-0 right-0 z-10 w-screen h-screen'}
                 />
             </svg>
-
+                <style jsx>{`
+                .text-stroke {
+                    -webkit-text-stroke: 2px white;
+                    text-stroke: 2px white;
+                    paint-order: stroke fill;
+                }
+                
+                .text-stroke-sm {
+                    -webkit-text-stroke: 1px white;
+                    text-stroke: 1px white;
+                    paint-order: stroke fill;
+                }
+                
+                .font-inter {
+                    font-family: 'Inter', sans-serif;
+                }
+            `}</style>
             {/* Google Fonts Link */}
-            <link
-                href="https://fonts.googleapis.com/css?family=Raleway:900"
-                rel="stylesheet"
-            />
-            <div id="text_container" className='absolute top-0 left-0 w-full h-full grid md:grid-cols-3 md:grid-rows-1 grid-cols-1 grid-rows-3 items-center justify-items-center opacity-0'>
-                <div className='max-w-xl md:col-span-2 row-span-2 md:pt-10 pt-5 ps-5 md:row-start-1 row-start-2 text-white'>
+
+             <div id="text_container" className='absolute top-0 left-0 w-full h-full grid md:grid-cols-2 md:grid-rows-1 grid-cols-1 grid-rows-3 items-center justify-items-center opacity-0 p-10'>
+                <div className=' row-span-2 md:pt-10 pt-5 ps-5 md:row-start-1 row-start-2 text-white'>
                     <div>
                         <div className='flex items-center gap-3'>
-                            <h1 className='text-5xl hero-text md:text-6xl font-semibold uppercase tracking-tight'>
+                            <h1 className='text-5xl hero-text md:text-8xl font-semibold uppercase tracking-tighter '>
                                 Make it
                             </h1>
-                            <div id="animate-line" className='w-32 h-2 rounded  bg-violet-800'></div>
+                            <div id="animate-line" className='w-32 h-2 rounded bg-violet-500 '></div>
                         </div>
-                        <h1 className='text-6xl md:text-6xl  font-bold uppercase tracking-tight hero-text'>Inovative</h1>
+                        <h1 className='text-6xl md:text-8xl font-bold uppercase tracking-tight hero-text '>Innovative</h1>
                     </div>
-                    <p className="text-xl font-semibold mt-4 hero-text text-shadow-md">
-                        Hi i am <span className='font-bold text-violet-800 uppercase'>Rohan Nagare</span> A Full Stack Developer with a passion for building web applications that solve real-world problems.
+                    <p className="text-2xl font-semibold mt-4 hero-text text-shadow-md  ">
+                        Hi i am <span className='font-bold text-violet-500 uppercase '>Rohan Nagare</span> A Full Stack Developer with a passion for building web applications that solve real-world problems.
                     </p>
-                    <p className="text-xl hero-text text-shadow-md">
-                        I have experience in both frontend and backend development, and I love to learn new technologies.
-                    </p>
+
                 </div>
             </div>
 

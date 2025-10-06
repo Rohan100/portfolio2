@@ -7,14 +7,14 @@ const Footer = () => {
 
 
   return (
-    <footer className="relative bg-gradient-to-b from-purple-800 via-purple-950 to-black backdrop-blur-2xl shadow-inner  py-16 pb-0 "
->
+    <footer className="relative bg-gradient-to-b from-purple-800 via-purple-950 to-black backdrop-blur-2xl shadow-inner  sm:py-12 py-6 "
+    >
       {/* Black shadow blur effect */}
 
-      <div className="mx-10 relative pb-16">
+      <div className="sm:mx-10 mx-5 relative sm:pb-12 pb-7">
         {/* Main Brand */}
-        <div className="mb-12 flex justify-between items-center">
-          <h1 className="text-9xl tracking-tighter font-bold ">
+        <div className="sm:mb-12 mb-8 flex justify-between items-center">
+          <h1 className="sm:text-8xl text-6xl tracking-tighter font-bold ">
             ROHANDEV
           </h1>
 
@@ -25,9 +25,10 @@ const Footer = () => {
         </div>
 
         {/* Footer Content Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+        <div className="grid sm:grid-cols-4 grid-cols-2 items-center justify-center gap-8 mb-12">
           {/* Contact Section */}
-          <div>
+
+          <div >
             <h3 className=" font-semibold mb-4 uppercase tracking-wide">
               CONTACT
             </h3>
@@ -69,11 +70,11 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Newsletter Section */}
-          <div className='flex ittems-center'>
-            <CircularText text='ROHAN*DEVELOPER*' className="absolute top-0 left-0 w-24 h-24 text-red-500 animate-spin-slow" />
-          </div>
+        <div className='sm:flex items-center hidden'>
+          <CircularText text='ROHAN*DEVELOPER*' className=" absolute top-0 left-0 sm:w-24 sm:h-24 w-16 h-16 text-red-500 animate-spin-slow" />
         </div>
+        </div>
+        {/* Newsletter Section */}
 
         {/* Bottom Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center pt-8 border-t border-purple-400">
