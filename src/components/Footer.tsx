@@ -33,9 +33,9 @@ const Footer = () => {
               CONTACT
             </h3>
             <div className=" space-y-1">
-              <p>Rohan Developer</p>
-              <p>hello@rohan.dev</p>
-              <p>+91 XXX XXX XXXX</p>
+              <p>Rohan Nagare</p>
+              <p>rohannagare8355@gmail.com</p>
+              <p>+91 9172778355</p>
             </div>
           </div>
 
@@ -45,10 +45,10 @@ const Footer = () => {
               FOLLOW
             </h3>
             <div className=" space-y-2">
-              <a href="#" className="block hover:underline transition-all duration-200">
+              <a href="https://github.com/Rohan100/" target='_blank' className="block hover:underline transition-all duration-200">
                 GitHub
               </a>
-              <a href="#" className="block hover:underline transition-all duration-200">
+              <a href="https://www.linkedin.com/in/rohan-nagare-4078ab212" target='_blank' className="block hover:underline transition-all duration-200">
                 LinkedIn
               </a>
               <a href="#" className="block hover:underline transition-all duration-200">
@@ -80,7 +80,7 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center pt-8 border-t border-purple-400">
           <div className=" text-sm mb-4 md:mb-0">
             <span>Built with </span>
-            <a href="#" className="hover:underline">React & Tailwind</a>
+            <a href="#" className="hover:underline">Next & Tailwind</a>
           </div>
 
           <div className="flex flex-col md:flex-row gap-4  text-sm">

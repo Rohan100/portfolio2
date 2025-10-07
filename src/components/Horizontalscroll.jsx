@@ -1,42 +1,73 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { image } from 'framer-motion/client';
 import Image from 'next/image';
+import { ArrowUpRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 function Horizontalscroll() {
     const containerRef = useRef(null);
     const sectionRef = useRef(null);
+    const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
+    const [isHovering, setIsHovering] = useState(false);
+    const router = useRouter();
     const projects = [
         {
             id: 1,
             title: "Task Management System",
             description: "A web application to manage tasks efficiently.",
             image: "/projects/task_pr.png",
-            link: "https://example.com/project1"
+            link: "https://pms.rottengrapes.tech/"
         },
         {
             id: 2,
-            title: "E-commerce Platform",
-            description: "An online platform for buying and selling products.",
-            image: "/projects/tast_pr.png",
-            link: "https://example.com/project2"
+            title: "Beatcoader",
+            description: "A Landing page for Startup.",
+            image: "/projects/beatcoder.png",
+            link: "https://beatcoder.vercel.app/"
         },
         {
             id: 3,
-            title: "Portfolio Website",
-            description: "A personal portfolio to showcase projects and skills.",
-            image: "/projects/tast_pr.png",
-            link: "https://example.com/project3"
+            title: "A VsCode Extension",
+            description: "VS Code extension to visualize code relationships through AST analysis",
+            image: "/projects/vscodeext.png",
+            link: "https://github.com/Rohan100/code-context-map/"
         },
         {
             id: 4,
-            title: "Blog Platform",
-            description: "A platform for writing and sharing blog posts.",
-            image: "/projects/tast_pr.png",
-            link: "https://example.com/project4"
+            title: "A Multiplay Battleship Game",
+            description: "multiplayer Battleship game using React, Node.js, Socket.IO, HTML, and CSS",
+            image: "/projects/battleship.jpg",
+            link: "https://github.com/Rohan100/multiplayer_battleship"
         }
     ]
+
+    // Add cursor movement handler
+    const handleMouseMove = (e) => {
+        setCursorPosition({
+            x: e.clientX,
+            y: e.clientY
+        });
+    };
+
+    const handleProjectClick = (link) => {
+        // Add a small scale animation before navigation
+        gsap.to(".hrcontent", {
+            scale: 0.98,
+            duration: 0.2,
+            ease: "power2.inOut",
+            onComplete: () => {
+                // Open link in new tab
+                window.open(link, '_blank', 'noopener,noreferrer');
+                // Reset scale
+                gsap.to(".hrcontent", {
+                    scale: 1,
+                    duration: 0.2
+                });
+            }
+        });
+    };
 
     useEffect(() => {
         gsap.registerPlugin(ScrollTrigger);
@@ -62,18 +93,34 @@ function Horizontalscroll() {
             }
         });
 
+        // Add mouse move listener
+        window.addEventListener('mousemove', handleMouseMove);
+
         return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
             scrollTween.kill();
             ScrollTrigger.getAll().forEach(st => st.kill());
         };
     }, []);
 
     return (
-        <div ref={containerRef}>
-            <div className='grid grid-cols-1 items-center md:grid-cols-2 '>
-                <div className='md:px-16 px-5'>
+        <div ref={containerRef} className='lg:mt-10 mt-5 mb-8'>
+            {/* Custom Cursor */}
+            <div 
+                className={`fixed w-14 h-14 pointer-events-none  z-50 transition-opacity duration-300 flex items-center justify-center rounded-full bg-black ${
+                    isHovering ? 'opacity-100 scale-100' : 'opacity-0 scale-0'
+                }`}
+                style={{
+                    transform: `translate(${cursorPosition.x - 40}px, ${cursorPosition.y - 40}px)`
+                }}
+            >
+                <span className="text-black text-sm"><ArrowUpRight className='text-white'/></span>
+            </div>
 
-                    <h1 className='md:text-5xl text-3xl m-10 tracking-wide'>Website Creations And Client Projects</h1>
+            <div className='grid grid-cols-1 items-center md:grid-cols-2 lg:m-10 md:m-6 sm:4 gap-4 mb-10 md:mb-5'>
+                <div className='md:px-14 px-5'>
+
+                    <h1 className='md:text-5xl text-2xl  tracking-wide font-semibold'><span className='text-purple-600'>Website</span> Creations And Client <span className='text-purple-600'>Projects</span></h1>
                 </div>
                 <p className='md:px-16 px-5 text-gray-300'>
                     Get to know me, my working style, and my values through an insight into my projects, which stand for quality, structure, and sustainable solutions.
@@ -84,28 +131,32 @@ function Horizontalscroll() {
                 className="flex gap-4 overflow-hidden relative ps-3"
                 id='horizontal-scroll-section'
             >
-                {
-                    projects.map((project) => (<div key={project.id} className='md:w-1/2 relative w-full aspect-video  shrink-0 hrcontent flex items-center justify-center'>
-                        <Image unoptimized src={project.image} width={200} height={200} alt={project.title}
-                                className='w-full h-full object-cover rounded-2xl' />
-                        <p className='absolute top-2 right-2 bg-black/90 px-2 py-1 text-xs rounded'> {project.title} </p>
-                        <p className='absolute text-white bg-black/90 px-2 py-1 rounded text-sm bottom-2 left-2 '>
+                {projects.map((project) => (
+                    <div 
+                        key={project.id} 
+                        className='md:w-1/2 relative w-full aspect-video shrink-0 hrcontent flex items-center justify-center cursor-none group'
+                        onMouseEnter={() => setIsHovering(true)}
+                        onMouseLeave={() => setIsHovering(false)}
+                        onClick={() => handleProjectClick(project.link)}
+                    >
+                        <Image 
+                            unoptimized 
+                            src={project.image} 
+                            width={200} 
+                            height={200} 
+                            alt={project.title}
+                            className='w-full h-full object-cover rounded transition-all duration-300 '
+                        />
+                        <div className='absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300'></div>
+                        <p className='absolute top-2 right-2 bg-black/90 px-2 py-1 text-xs rounded'>
+                            {project.title}
+                        </p>
+                        <p className='absolute text-white bg-black/90 px-2 py-1 rounded text-sm bottom-2 left-2 max-w-[90%]'>
                             {project.description}
                         </p>
-                    </div>))
-                }
-
-                {/* <div className='md:w-1/2 w-full aspect-video bg-blue-500 shrink-0 hrcontent flex items-center justify-center'>
-                    <p className='text-4xl'>content 2</p>
-                </div>
-                <div className='md:w-1/2 w-full aspect-video bg-yellow-500 shrink-0 hrcontent flex items-center justify-center'>
-                    <p className='text-4xl'>content 3</p>
-                </div>
-                <div className='md:w-1/2 w-full aspect-video bg-orange-500 shrink-0 hrcontent flex items-center justify-center'>
-                    <p className='text-4xl'>content 4</p>
-                </div> */}
+                    </div>
+                ))}
             </section>
-
         </div>
     )
 }
