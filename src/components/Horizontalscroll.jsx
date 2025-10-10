@@ -72,42 +72,41 @@ function Horizontalscroll() {
     useEffect(() => {
         gsap.registerPlugin(ScrollTrigger);
 
-        const container = containerRef.current;
-        const sections = gsap.utils.toArray(".hrcontent", container);
+        // Only apply scroll effect on medium and larger screens
+        if (window.innerWidth >= 768) {
+            const container = containerRef.current;
+            const sections = gsap.utils.toArray(".hrcontent", container);
 
-        // Kill any existing ScrollTriggers
-        ScrollTrigger.getAll().forEach(st => st.kill());
-
-        const scrollTween = gsap.to(sections, {
-            xPercent: -100 * (sections.length - 1),
-            ease: "none",
-            scrollTrigger: {
-                trigger: containerRef.current,
-                pin: true,
-                scrub: 1,
-                snap: 1 / (sections.length - 1),
-                start: "top top",
-                end: () => "+=" + (sectionRef.current.offsetWidth * (sections.length - 1)),
-                invalidateOnRefresh: true,
-                anticipatePin: 1
-            }
-        });
-
-        // Add mouse move listener
-        window.addEventListener('mousemove', handleMouseMove);
-
-        return () => {
-            window.removeEventListener('mousemove', handleMouseMove);
-            scrollTween.kill();
             ScrollTrigger.getAll().forEach(st => st.kill());
-        };
+
+            const scrollTween = gsap.to(sections, {
+                xPercent: -100 * (sections.length - 1),
+                ease: "none",
+                scrollTrigger: {
+                    trigger: containerRef.current,
+                    pin: true,
+                    scrub: 1,
+                    snap: 1 / (sections.length - 1),
+                    start: "top top",
+                    end: () => "+=" + (sectionRef.current.offsetWidth * (sections.length - 1)),
+                    invalidateOnRefresh: true,
+                    anticipatePin: 1
+                }
+            });
+            window.addEventListener('mousemove', handleMouseMove);
+            return () => {
+                window.removeEventListener('mousemove', handleMouseMove);
+                scrollTween.kill();
+                ScrollTrigger.getAll().forEach(st => st.kill());
+            };
+        }
     }, []);
 
     return (
         <div ref={containerRef} className='lg:mt-10 mt-5 mb-8'>
-            {/* Custom Cursor */}
+            {/* Custom Cursor - only show on larger screens */}
             <div 
-                className={`fixed w-14 h-14 pointer-events-none  z-50 transition-opacity duration-300 flex items-center justify-center rounded-full bg-black ${
+                className={`fixed w-14 h-14 pointer-events-none z-50 transition-opacity duration-500 hidden md:flex items-center justify-center rounded-full bg-black ${
                     isHovering ? 'opacity-100 scale-100' : 'opacity-0 scale-0'
                 }`}
                 style={{
@@ -126,15 +125,16 @@ function Horizontalscroll() {
                     Get to know me, my working style, and my values through an insight into my projects, which stand for quality, structure, and sustainable solutions.
                 </p>
             </div>
+            {/* Responsive project grid/scroll section */}
             <section
                 ref={sectionRef}
-                className="flex gap-4 overflow-hidden relative ps-3"
+                className="md:flex md:gap-4 md:overflow-hidden relative md:ps-3 grid grid-cols-1 gap-6 px-4"
                 id='horizontal-scroll-section'
             >
                 {projects.map((project) => (
                     <div 
                         key={project.id} 
-                        className='md:w-1/2 relative w-full aspect-video shrink-0 hrcontent flex items-center justify-center cursor-none group'
+                        className='md:w-1/2 relative w-full aspect-video shrink-0 hrcontent flex items-center justify-center cursor-pointer md:cursor-none group'
                         onMouseEnter={() => setIsHovering(true)}
                         onMouseLeave={() => setIsHovering(false)}
                         onClick={() => handleProjectClick(project.link)}
@@ -145,7 +145,7 @@ function Horizontalscroll() {
                             width={200} 
                             height={200} 
                             alt={project.title}
-                            className='w-full h-full object-cover rounded transition-all duration-300 '
+                            className='w-full h-full object-cover rounded transition-all duration-300'
                         />
                         <div className='absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300'></div>
                         <p className='absolute top-2 right-2 bg-black/90 px-2 py-1 text-xs rounded'>
@@ -158,7 +158,7 @@ function Horizontalscroll() {
                 ))}
             </section>
         </div>
-    )
+    );
 }
 
 export default Horizontalscroll
