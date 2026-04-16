@@ -8,25 +8,18 @@ interface Props {
   onFileOpen: (f: FileId) => void;
 }
 
-// Extension → display colour hint
 function ExtBadge({ ext }: { ext: string }) {
   const colours: Record<string, string> = {
-    ts: "#3178c6",
-    js: "#f0db4f",
+    ts:   "#3178c6",
+    js:   "#f0db4f",
     json: "#dbb879",
-    md: "#aaa",
+    md:   "#aaa",
   };
   const c = colours[ext] ?? "#888";
   return (
     <span
-      style={{
-        display: "inline-block",
-        width: 8,
-        height: 8,
-        borderRadius: "50%",
-        background: c,
-        flexShrink: 0,
-      }}
+      className="inline-block w-2 h-2 rounded-full flex-shrink-0"
+      style={{ background: c }}
     />
   );
 }
@@ -35,36 +28,42 @@ export default function FileExplorer({ activeFile, onFileOpen }: Props) {
   const [folderOpen, setFolderOpen] = useState(true);
 
   return (
-    <div className="sidebar-panel">
-      <div className="sidebar-header">Explorer</div>
+    <div className="flex flex-col overflow-hidden flex-shrink-0 transition-[width] duration-200 ease-in-out border-r w-[var(--explorer-w)] bg-sidebar border-border-light">
+      {/* Header */}
+      <div className="px-[14px] pt-3 pb-[6px] text-[11px] font-bold tracking-[0.1em] uppercase flex-shrink-0 text-text-secondary">
+        Explorer
+      </div>
 
       {/* Root folder row */}
       <div
-        className="file-tree-folder"
+        className="flex items-center gap-[6px] px-[10px] py-1 text-[13px] cursor-pointer select-none hover:bg-hover text-text-primary"
         onClick={() => setFolderOpen((o) => !o)}
       >
-        <span style={{ fontSize: 10, color: "var(--text-secondary)" }}>
+        <span className="text-[10px] text-text-secondary">
           {folderOpen ? "▾" : "▸"}
         </span>
-        <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>📁</span>
-        <span style={{ fontWeight: 600, fontSize: 12, letterSpacing: "0.04em" }}>
-          PORTFOLIO
-        </span>
+        <span className="text-[12px] text-text-secondary">📁</span>
+        <span className="font-semibold text-[12px] tracking-[0.04em]">PORTFOLIO</span>
       </div>
 
       {/* File list */}
       {folderOpen && (
-        <div className="file-tree">
+        <div className="overflow-y-auto flex-1">
           {FILES.map((f) => {
             const ext = f.id.split(".").pop() ?? "";
+            const isActive = activeFile === f.id;
             return (
               <div
                 key={f.id}
-                className={`file-item${activeFile === f.id ? " active" : ""}`}
+                className={`flex items-center gap-2 py-[3px] pr-3 pl-7 text-[13px] cursor-pointer select-none transition-colors duration-100 ${
+                  isActive
+                    ? "bg-selected text-text-active"
+                    : "text-text-primary hover:bg-hover"
+                }`}
                 onClick={() => onFileOpen(f.id)}
               >
                 <ExtBadge ext={ext} />
-                <span className="file-icon">{f.icon}</span>
+                <span className="text-[14px] flex-shrink-0">{f.icon}</span>
                 <span>{f.id}</span>
               </div>
             );

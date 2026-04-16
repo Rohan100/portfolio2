@@ -29,15 +29,15 @@ export default function StatusBar({ activeFile, language }: Props) {
   const langLabel: Record<string, string> = {
     typescript: "TypeScript",
     javascript: "JavaScript",
-    json: "JSON",
-    markdown: "Markdown",
+    json:       "JSON",
+    markdown:   "Markdown",
   };
 
   return (
-    <div className="status-bar">
-      {/* Left side */}
-      <div className="status-left">
-        <span className="status-item">
+    <div className="flex items-center justify-between px-[10px] text-[12px] flex-shrink-0 select-none h-[var(--statusbar-h)] bg-statusbar text-text-statusbar">
+      {/* Left */}
+      <div className="flex items-center gap-3">
+        <span className="flex items-center gap-1 px-1 cursor-pointer rounded-[3px] h-[22px] transition-colors duration-150 hover:bg-white/15">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <line x1="6" y1="3" x2="6" y2="15" />
             <circle cx="18" cy="6" r="3" />
@@ -47,22 +47,28 @@ export default function StatusBar({ activeFile, language }: Props) {
           main
         </span>
         {activeFile && (
-          <span className="status-item">
+          <span className="flex items-center gap-1 px-1 cursor-pointer rounded-[3px] h-[22px] transition-colors duration-150 hover:bg-white/15">
             ✓ {activeFile}
           </span>
         )}
       </div>
 
-      {/* Right side */}
-      <div className="status-right">
-        <span className="status-item">{time}</span>
-        <span className="status-item">UTF-8</span>
-        <span className="status-item">
-          {activeFile ? langLabel[language] ?? language : "Plain Text"}
+      {/* Right */}
+      <div className="flex items-center gap-3">
+        <span className="flex items-center gap-1 px-1 cursor-pointer rounded-[3px] h-[22px] transition-colors duration-150 hover:bg-white/15">
+          {time}
         </span>
-        <span className="status-item">Spaces: 2</span>
+        <span className="flex items-center gap-1 px-1 cursor-pointer rounded-[3px] h-[22px] transition-colors duration-150 hover:bg-white/15">
+          UTF-8
+        </span>
+        <span className="flex items-center gap-1 px-1 cursor-pointer rounded-[3px] h-[22px] transition-colors duration-150 hover:bg-white/15">
+          {activeFile ? (langLabel[language] ?? language) : "Plain Text"}
+        </span>
+        <span className="flex items-center gap-1 px-1 cursor-pointer rounded-[3px] h-[22px] transition-colors duration-150 hover:bg-white/15">
+          Spaces: 2
+        </span>
         <a
-          className="status-link"
+          className="flex items-center gap-1 text-white no-underline px-1 rounded-[3px] h-[22px] transition-colors duration-150 hover:bg-white/15"
           href="https://github.com/rohannagare"
           target="_blank"
           rel="noopener noreferrer"
@@ -74,7 +80,7 @@ export default function StatusBar({ activeFile, language }: Props) {
           rohannagare
         </a>
         <a
-          className="status-link"
+          className="flex items-center gap-1 text-white no-underline px-1 rounded-[3px] h-[22px] transition-colors duration-150 hover:bg-white/15"
           href="https://linkedin.com/in/rohannagare"
           target="_blank"
           rel="noopener noreferrer"

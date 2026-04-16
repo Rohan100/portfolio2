@@ -2,17 +2,22 @@
 
 import { FileId } from "@/lib/fileContents";
 
-type Panel = "explorer" | "projects" | "skills" | "experience" | "contact";
+const FILE_TO_PANEL: Record<FileId, string> = {
+  "about-me.ts":  "explorer",
+  "projects.ts":  "projects",
+  "skills.json":  "skills",
+  "experience.md":"experience",
+  "contact.js":   "contact",
+};
 
 interface Props {
-  activePanel: Panel | null;
-  onPanelChange: (p: Panel) => void;
+  activeFile: FileId;
   onFileOpen: (f: FileId) => void;
 }
 
-const ICONS: { id: Panel; label: string; svg: React.ReactNode }[] = [
+const ICONS: { fileId: FileId; label: string; svg: React.ReactNode }[] = [
   {
-    id: "explorer",
+    fileId: "about-me.ts",
     label: "Explorer",
     svg: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
@@ -21,7 +26,7 @@ const ICONS: { id: Panel; label: string; svg: React.ReactNode }[] = [
     ),
   },
   {
-    id: "projects",
+    fileId: "projects.ts",
     label: "Projects",
     svg: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
@@ -33,7 +38,7 @@ const ICONS: { id: Panel; label: string; svg: React.ReactNode }[] = [
     ),
   },
   {
-    id: "skills",
+    fileId: "skills.json",
     label: "Skills",
     svg: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
@@ -43,7 +48,7 @@ const ICONS: { id: Panel; label: string; svg: React.ReactNode }[] = [
     ),
   },
   {
-    id: "experience",
+    fileId: "experience.md",
     label: "Experience",
     svg: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
@@ -56,7 +61,7 @@ const ICONS: { id: Panel; label: string; svg: React.ReactNode }[] = [
     ),
   },
   {
-    id: "contact",
+    fileId: "contact.js",
     label: "Contact",
     svg: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
@@ -66,33 +71,36 @@ const ICONS: { id: Panel; label: string; svg: React.ReactNode }[] = [
   },
 ];
 
-// Maps each panel to its corresponding file
-const PANEL_TO_FILE: Record<Panel, FileId> = {
-  explorer: "about-me.ts",
-  projects: "projects.ts",
-  skills: "skills.json",
-  experience: "experience.md",
-  contact: "contact.js",
-};
-
-export default function ActivityBar({ activePanel, onPanelChange, onFileOpen }: Props) {
-  const handleClick = (id: Panel) => {
-    onPanelChange(id);
-    onFileOpen(PANEL_TO_FILE[id]);
-  };
+export default function ActivityBar({ activeFile, onFileOpen }: Props) {
+  const activePanel = FILE_TO_PANEL[activeFile];
 
   return (
-    <div className="activity-bar">
-      {ICONS.map(({ id, label, svg }) => (
-        <div
-          key={id}
-          className={`activity-icon${activePanel === id ? " active" : ""}`}
-          onClick={() => handleClick(id)}
-        >
-          {svg}
-          <span className="activity-tooltip">{label}</span>
-        </div>
-      ))}
+    <div className="flex flex-col items-center py-1 flex-shrink-0 z-10 border-r border-black bg-activity w-[var(--activity-w)]">
+      {ICONS.map(({ fileId, label, svg }) => {
+        const panel = FILE_TO_PANEL[fileId];
+        const isActive = activePanel === panel;
+        return (
+          <div
+            key={fileId}
+            className={`relative w-12 h-12 flex items-center justify-center cursor-pointer transition-colors duration-150 ${
+              isActive
+                ? "text-text-active activity-icon-active"
+                : "text-text-secondary hover:text-text-active"
+            }`}
+            onClick={() => onFileOpen(fileId)}
+          >
+            {svg}
+            {/* Tooltip */}
+            <span
+              className="absolute left-[calc(var(--activity-w)+8px)] bg-[#090909] text-[#ccc] text-[11px] px-2 py-1 rounded-[3px] whitespace-nowrap pointer-events-none opacity-0 z-[100] transition-opacity duration-150 border border-[#424242] group-hover:opacity-100"
+              style={{ opacity: 0 }}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.opacity = "1")}
+            >
+              {label}
+            </span>
+          </div>
+        );
+      })}
     </div>
   );
 }
