@@ -30,13 +30,13 @@ export default function FileExplorer({ activeFile, onFileOpen }: Props) {
   return (
     <div className="flex flex-col overflow-hidden flex-shrink-0 transition-[width] duration-200 ease-in-out border-r w-[var(--explorer-w)] bg-sidebar border-border-light">
       {/* Header */}
-      <div className="px-[14px] pt-3 pb-[6px] text-[11px] font-bold tracking-[0.1em] uppercase flex-shrink-0 text-text-secondary">
+      <div className="px-4 pt-[14px] pb-2 text-[11px] font-bold tracking-[0.1em] uppercase flex-shrink-0 text-text-secondary">
         Explorer
       </div>
 
       {/* Root folder row */}
       <div
-        className="flex items-center gap-[6px] px-[10px] py-1 text-[13px] cursor-pointer select-none hover:bg-hover text-text-primary"
+        className="flex items-center gap-[6px] px-3 py-[5px] text-[13px] cursor-pointer select-none hover:bg-hover text-text-primary"
         onClick={() => setFolderOpen((o) => !o)}
       >
         <span className="text-[10px] text-text-secondary">
@@ -55,7 +55,7 @@ export default function FileExplorer({ activeFile, onFileOpen }: Props) {
             return (
               <div
                 key={f.id}
-                className={`flex items-center gap-2 py-[3px] pr-3 pl-7 text-[13px] cursor-pointer select-none transition-colors duration-100 ${
+                className={`flex items-center gap-2 py-1 pr-3 pl-8 text-[13px] cursor-pointer select-none transition-colors duration-100 ${
                   isActive
                     ? "bg-selected text-text-active"
                     : "text-text-primary hover:bg-hover"

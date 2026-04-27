@@ -38,7 +38,7 @@ export default function EditorTabs({
         return (
           <div
             key={fid}
-            className={`flex items-center gap-2 px-[14px] h-[35px] border-r border-black text-[13px] cursor-pointer whitespace-nowrap transition-colors duration-150 flex-shrink-0 select-none ${
+            className={`flex items-center gap-2 px-4 h-[35px] border-r border-black text-[13px] cursor-pointer whitespace-nowrap transition-colors duration-150 flex-shrink-0 select-none ${
               isActive
                 ? "tab-active bg-tab-active text-text-active"
                 : "bg-tab-inactive text-text-secondary hover:bg-tab-active hover:text-text-primary"

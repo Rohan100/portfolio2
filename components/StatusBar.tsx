@@ -34,7 +34,7 @@ export default function StatusBar({ activeFile, language }: Props) {
   };
 
   return (
-    <div className="flex items-center justify-between px-[10px] text-[12px] flex-shrink-0 select-none h-[var(--statusbar-h)] bg-statusbar text-text-statusbar">
+    <div className="flex items-center justify-between px-3 text-[12px] flex-shrink-0 select-none h-[var(--statusbar-h)] bg-statusbar text-text-statusbar">
       {/* Left */}
       <div className="flex items-center gap-3">
         <span className="flex items-center gap-1 px-1 cursor-pointer rounded-[3px] h-[22px] transition-colors duration-150 hover:bg-white/15">

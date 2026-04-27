@@ -5,11 +5,11 @@ export default function TitleBar() {
 
   return (
     <div
-      className="flex items-center justify-between px-[10px] flex-shrink-0 select-none border-b border-black h-[var(--titlebar-h)] bg-titlebar text-text-primary"
+      className="flex items-center justify-between px-4 flex-shrink-0 select-none border-b border-black h-[var(--titlebar-h)] bg-titlebar text-text-primary"
       style={{ WebkitAppRegion: "drag" } as React.CSSProperties}
     >
       {/* Menu items */}
-      <div className="flex gap-[18px] text-[12px]">
+      <div className="flex gap-4 text-[12px]">
         {menus.map((m) => (
           <span
             key={m}
