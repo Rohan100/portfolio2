@@ -63,23 +63,23 @@ export default function ContactPageUI() {
   };
 
   return (
-    <div className="px-9 pt-7 pb-6 flex flex-col gap-5 max-w-[700px] font-mono text-[13px]">
+    <div className="px-8 py-8 flex flex-col gap-6 max-w-[700px] font-mono text-[13px]">
       {/* Header comments */}
-      <div className="flex flex-col gap-1 text-[12px]">
+      <div className="flex flex-col gap-[6px] text-[12px]">
         <div className="tok-comment">{`// Let's connect! All links are real — don't be a stranger 👋`}</div>
         <div className="tok-comment">{`// responseTime: "Usually within 24 hours"`}</div>
         <div className="tok-comment">{`// preferredContact: "LinkedIn DM or email"`}</div>
       </div>
 
       {/* Identity card */}
-      <div className="flex items-center gap-4 rounded-[8px] px-5 py-4 border border-border-light bg-sidebar">
+      <div className="flex items-center gap-4 rounded-[8px] px-5 py-5 border border-border-light bg-sidebar">
         <div
           className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-[15px] text-white flex-shrink-0"
           style={{ background: "linear-gradient(135deg,#094771,#007acc)" }}
         >
           RN
         </div>
-        <div className="flex-1 flex flex-col gap-[2px]">
+        <div className="flex-1 flex flex-col gap-[4px]">
           <span className="text-[16px] font-bold text-text-active font-sans">
             Rohan Nagare
           </span>
@@ -88,7 +88,7 @@ export default function ContactPageUI() {
           </span>
         </div>
         <div
-          className="flex items-center gap-[6px] text-[11px] rounded-[12px] px-[10px] py-1 border whitespace-nowrap"
+          className="flex items-center gap-[6px] text-[11px] rounded-[12px] px-3 py-[6px] border whitespace-nowrap"
           style={{ color: "#4ec9b0", background: "rgba(78,201,176,0.1)", borderColor: "rgba(78,201,176,0.3)" }}
         >
           <span className="w-[6px] h-[6px] bg-[#4ec9b0] rounded-full pulse-green" />
@@ -97,7 +97,7 @@ export default function ContactPageUI() {
       </div>
 
       {/* Links grid */}
-      <div className="grid grid-cols-2 gap-[10px]">
+      <div className="grid grid-cols-2 gap-3">
         {contactLinks.map((link) => {
           const isHovered = activeLink === link.id;
           return (
@@ -106,7 +106,7 @@ export default function ContactPageUI() {
               href={link.href}
               target={link.id !== "email" ? "_blank" : undefined}
               rel="noopener noreferrer"
-              className="flex items-center gap-3 px-4 py-3 rounded-[6px] no-underline border transition-all duration-150 cursor-pointer"
+              className="flex items-center gap-3 px-4 py-4 rounded-[6px] no-underline border transition-all duration-150 cursor-pointer"
               style={{
                 background:  isHovered ? link.bg                   : "var(--bg-sidebar)",
                 borderColor: isHovered ? link.color                : "var(--border-light)",
@@ -114,10 +114,10 @@ export default function ContactPageUI() {
               onMouseEnter={() => setActiveLink(link.id)}
               onMouseLeave={() => setActiveLink(null)}
             >
-              <span className="flex-shrink-0 text-[18px] flex items-center" style={{ color: link.color }}>
+              <span className="flex-shrink-0 text-[20px] flex items-center" style={{ color: link.color }}>
                 {link.icon}
               </span>
-              <div className="flex-1 flex flex-col gap-[2px]">
+              <div className="flex-1 flex flex-col gap-[4px]">
                 <span className="text-[11px] tok-property">{link.label}</span>
                 <span className="text-[11px] overflow-hidden text-ellipsis whitespace-nowrap tok-string">
                   &quot;{link.value}&quot;
@@ -138,12 +138,12 @@ export default function ContactPageUI() {
       </div>
 
       {/* Quick copy email */}
-      <div className="flex flex-col gap-[6px]">
+      <div className="flex flex-col gap-2">
         <span className="tok-comment">// Quick copy</span>
-        <div className="flex items-center gap-[10px] rounded px-[14px] py-[10px] text-[12px] border border-border-light bg-sidebar">
-          <span className="tok-string">&quot;rohannagare.dev@gmail.com&quot;</span>
+        <div className="flex items-center gap-3 rounded px-4 py-3 text-[12px] border border-border-light bg-sidebar">
+          <span className="tok-string flex-1">&quot;rohannagare.dev@gmail.com&quot;</span>
           <button
-            className="inline-flex items-center gap-[5px] px-[10px] py-1 rounded-[3px] text-[11px] cursor-pointer border transition-all duration-150 flex-shrink-0 ml-auto bg-activity border-border text-text-secondary hover:bg-hover hover:text-text-active font-mono"
+            className="inline-flex items-center gap-[5px] px-3 py-[6px] rounded-[3px] text-[11px] cursor-pointer border transition-all duration-150 flex-shrink-0 bg-activity border-border text-text-secondary hover:bg-hover hover:text-text-active font-mono"
             onClick={handleCopyEmail}
           >
             {copyState === "copied" ? (
@@ -156,14 +156,14 @@ export default function ContactPageUI() {
       </div>
 
       {/* Open to */}
-      <div className="flex flex-col gap-[6px]">
+      <div className="flex flex-col gap-3">
         <div className="text-[13px]">
           <span className="tok-keyword">openTo</span>
           <span className="tok-punctuation">: [</span>
         </div>
-        <div className="flex flex-col gap-[5px] pl-4">
+        <div className="flex flex-col gap-[8px] pl-4">
           {openTo.map((item) => (
-            <div key={item.text} className="flex items-center gap-[10px] text-[12px]">
+            <div key={item.text} className="flex items-center gap-3 text-[12px]">
               <span>{item.icon}</span>
               <span className="tok-string">&quot;{item.text}&quot;</span>
             </div>
@@ -174,7 +174,7 @@ export default function ContactPageUI() {
 
       {/* Tip block */}
       <div
-        className="flex flex-col gap-[2px] px-[14px] py-[10px] border-l-[3px] rounded-r text-[12px]"
+        className="flex flex-col gap-[4px] px-5 py-4 border-l-[3px] rounded-r text-[12px]"
         style={{ background: "rgba(106,153,85,0.06)", borderLeftColor: "var(--tok-comment)" }}
       >
         <div className="tok-comment">{`/**`}</div>

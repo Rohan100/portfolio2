@@ -74,7 +74,7 @@ const techColors: Record<string, string> = {
   "Node.js":      "#68a063",
   React:          "#61dafb",
   "Next.js":      "#ffffff",
-  "Socket.IO":    "#010101",
+  "Socket.IO":    "#aaaaaa",
   "D3.js":        "#f9a03c",
   MongoDB:        "#47a248",
   PostgreSQL:     "#336791",
@@ -90,10 +90,10 @@ export default function ProjectsPageUI() {
   const [expanded, setExpanded] = useState<string | null>(null);
 
   return (
-    <div className="px-9 pt-7 pb-6 flex flex-col gap-[6px] font-mono text-[13px]">
+    <div className="px-8 py-8 flex flex-col gap-5 font-mono text-[13px]">
       {/* Header */}
-      <div className="mb-4">
-        <div className="text-[14px] mb-2">
+      <div className="flex flex-col gap-1">
+        <div className="text-[14px]">
           <span className="tok-keyword">const</span>{" "}
           <span className="tok-variable">projects</span>
           <span className="tok-punctuation">: </span>
@@ -105,8 +105,8 @@ export default function ProjectsPageUI() {
         </p>
       </div>
 
-      {/* Grid */}
-      <div className="flex flex-col gap-[10px] mb-3">
+      {/* Cards */}
+      <div className="flex flex-col gap-3">
         {projects.map((project, i) => {
           const status = statusConfig[project.status];
           const isOpen = expanded === project.name;
@@ -114,7 +114,7 @@ export default function ProjectsPageUI() {
           return (
             <div
               key={project.name}
-              className={`rounded-[6px] px-5 py-4 cursor-pointer border transition-colors duration-150 ${
+              className={`rounded-[6px] px-5 py-5 cursor-pointer border transition-colors duration-150 ${
                 isOpen
                   ? "border-accent bg-[rgba(0,122,204,0.05)]"
                   : "border-border-light bg-sidebar hover:bg-hover"
@@ -123,23 +123,23 @@ export default function ProjectsPageUI() {
             >
               {/* Top row */}
               <div className="flex items-start gap-3">
-                <div className="text-[16px] flex-shrink-0 w-7 pt-[2px]">
+                <div className="text-[15px] flex-shrink-0 w-7 pt-[1px]">
                   <span className="tok-number">{i}</span>
                   <span className="tok-punctuation">.</span>
                 </div>
                 <div className="flex-1">
-                  <div className="flex items-center gap-[10px] mb-[6px] flex-wrap">
+                  <div className="flex items-center gap-3 flex-wrap mb-2">
                     <span className="text-[15px] font-semibold text-text-active font-sans">
                       {project.name}
                     </span>
                     <span
-                      className="text-[11px] px-2 py-[2px] rounded-[12px] font-mono"
+                      className="text-[11px] px-2 py-[3px] rounded-[12px] font-mono"
                       style={{ color: status.color, background: status.bg }}
                     >
                       {status.label}
                     </span>
                   </div>
-                  <p className="text-[12px] leading-[1.6] text-text-secondary font-sans">
+                  <p className="text-[12px] leading-[1.65] text-text-secondary font-sans">
                     {project.description}
                   </p>
                 </div>
@@ -149,11 +149,11 @@ export default function ProjectsPageUI() {
               </div>
 
               {/* Tech pills */}
-              <div className="flex flex-wrap gap-[6px] mt-3 pl-10">
+              <div className="flex flex-wrap gap-[6px] mt-4 pl-10">
                 {project.techStack.map((tech) => (
                   <span
                     key={tech}
-                    className="text-[11px] px-2 py-[2px] rounded-[3px] border opacity-85 hover:opacity-100 transition-opacity duration-150"
+                    className="text-[11px] px-2 py-[3px] rounded-[3px] border opacity-85 hover:opacity-100 transition-opacity duration-150"
                     style={{
                       borderColor: techColors[tech] ?? "#555",
                       color:       techColors[tech] ?? "#d4d4d4",
@@ -166,7 +166,7 @@ export default function ProjectsPageUI() {
 
               {/* Expanded highlights */}
               {isOpen && (
-                <div className="mt-[14px] pl-10 flex flex-col gap-[6px] fade-in">
+                <div className="mt-5 pl-10 flex flex-col gap-2 fade-in">
                   <div className="text-[12px] mb-1 tok-comment">// highlights</div>
                   {project.highlights.map((h, hi) => (
                     <div key={hi} className="flex gap-2 text-[12px] text-text-primary">
@@ -178,7 +178,7 @@ export default function ProjectsPageUI() {
                     href={project.github}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-[6px] mt-2 px-3 py-[5px] rounded no-underline text-[12px] border transition-all duration-150 bg-editor border-border text-text-secondary hover:border-text-secondary hover:text-text-active"
+                    className="inline-flex items-center gap-[6px] mt-3 px-3 py-2 rounded no-underline text-[12px] border transition-all duration-150 bg-editor border-border text-text-secondary hover:border-text-secondary hover:text-text-active"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <GithubIcon /> View on GitHub
@@ -190,7 +190,7 @@ export default function ProjectsPageUI() {
         })}
       </div>
 
-      <div className="mt-1 text-[13px]">
+      <div className="text-[13px]">
         <span className="tok-punctuation">];</span>
         <span className="tok-comment"> // {projects.length} projects total</span>
       </div>

@@ -43,11 +43,11 @@ export default function AboutPageUI() {
   }, []);
 
   return (
-    <div className="p-8 flex flex-col gap-7 max-w-[820px] font-mono text-[13px]">
+    <div className="px-8 py-8 flex flex-col gap-7 max-w-[820px] font-mono text-[13px]">
       {/* ── Hero ─────────────────────────────────────────── */}
-      <div className="flex items-start gap-7">
+      <div className="flex items-start gap-6">
         {/* Avatar */}
-        <div className="relative flex-shrink-0">
+        <div className="relative flex-shrink-0 mt-1">
           <div
             className="w-[84px] h-[84px] rounded-full flex items-center justify-center text-[40px] relative z-10"
             style={{
@@ -67,12 +67,12 @@ export default function AboutPageUI() {
         </div>
 
         {/* Text */}
-        <div className="flex-1">
-          <span className="inline-block text-[11px] italic mb-1 tok-comment">
+        <div className="flex-1 flex flex-col gap-2">
+          <span className="inline-block text-[11px] italic tok-comment">
             // Software Developer
           </span>
           <h1
-            className="text-[28px] font-bold mb-[6px] tracking-[-0.5px] leading-[1.2] text-text-active font-sans"
+            className="text-[28px] font-bold tracking-[-0.5px] leading-[1.2] text-text-active font-sans"
           >
             {typedText}
             <span
@@ -82,27 +82,27 @@ export default function AboutPageUI() {
               |
             </span>
           </h1>
-          <p className="text-[12px] mb-[10px] flex items-center gap-1 text-text-secondary">
+          <p className="text-[12px] flex items-center gap-1 text-text-secondary">
             <span>📍</span> Pune, India
           </p>
-          <p className="text-[13px] leading-[1.7] max-w-[520px] mb-4 text-text-secondary font-sans">
+          <p className="text-[13px] leading-[1.7] max-w-[520px] text-text-secondary font-sans">
             Final year IT Engineering student passionate about Web Development, AI, and building
             innovative developer tools that make engineers&#39; lives easier.
           </p>
 
           {/* Action buttons */}
-          <div className="flex gap-[10px] flex-wrap">
+          <div className="flex gap-3 flex-wrap pt-1">
             <a
               href="https://github.com/rohannagare"
               target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-[6px] px-4 py-[7px] rounded text-[12px] no-underline cursor-pointer border transition-all duration-150 bg-accent text-white border-accent hover:bg-accent-light font-mono"
+              className="inline-flex items-center gap-[6px] px-4 py-2 rounded text-[12px] no-underline cursor-pointer border transition-all duration-150 bg-accent text-white border-accent hover:bg-accent-light font-mono"
             >
               <GithubIcon /> GitHub
             </a>
             <a
               href="https://linkedin.com/in/rohannagare"
               target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-[6px] px-4 py-[7px] rounded text-[12px] no-underline cursor-pointer border transition-all duration-150 font-mono"
+              className="inline-flex items-center gap-[6px] px-4 py-2 rounded text-[12px] no-underline cursor-pointer border transition-all duration-150 font-mono"
               style={{ background: "rgba(0,119,181,0.12)", color: "#0077b5", borderColor: "#0077b5" }}
               onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(0,119,181,0.2)")}
               onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(0,119,181,0.12)")}
@@ -111,7 +111,7 @@ export default function AboutPageUI() {
             </a>
             <a
               href="mailto:rohannagare.dev@gmail.com"
-              className="inline-flex items-center gap-[6px] px-4 py-[7px] rounded text-[12px] no-underline cursor-pointer border transition-all duration-150 text-text-secondary border-border hover:bg-hover hover:text-text-primary font-mono"
+              className="inline-flex items-center gap-[6px] px-4 py-2 rounded text-[12px] no-underline cursor-pointer border transition-all duration-150 text-text-secondary border-border hover:bg-hover hover:text-text-primary font-mono"
             >
               <MailIcon /> Email Me
             </a>
@@ -124,27 +124,27 @@ export default function AboutPageUI() {
         {stats.map((s) => (
           <div
             key={s.label}
-            className="flex flex-col gap-1 rounded-[6px] px-4 py-[14px] border border-border-light bg-sidebar transition-colors duration-150 cursor-default hover:border-accent hover:bg-[rgba(0,122,204,0.06)]"
+            className="flex flex-col gap-2 rounded-[6px] px-4 py-4 border border-border-light bg-sidebar transition-colors duration-150 cursor-default hover:border-accent hover:bg-[rgba(0,122,204,0.06)]"
           >
-            <span className="text-[16px]">{s.icon}</span>
-            <span className="text-[22px] font-bold text-tok-variable font-sans">
+            <span className="text-[18px] leading-none">{s.icon}</span>
+            <span className="text-[22px] font-bold text-tok-variable font-sans leading-none">
               {s.value}
             </span>
-            <span className="text-[11px] text-text-muted">{s.label}</span>
+            <span className="text-[11px] text-text-muted leading-snug">{s.label}</span>
           </div>
         ))}
       </div>
 
       {/* ── Currently Doing ───────────────────────────────── */}
-      <div className="rounded-[6px] px-5 py-4 border border-border-light bg-sidebar">
-        <div className="text-[13px] mb-3">
+      <div className="rounded-[6px] px-5 py-5 border border-border-light bg-sidebar">
+        <div className="text-[13px] mb-4">
           <span className="inline-block w-2 h-2 rounded-full mr-[6px] align-middle bg-[#4ec9b0]" />
           <span className="tok-variable">currentlyDoing</span>
           <span className="tok-punctuation"> = [</span>
         </div>
-        <div className="flex flex-col gap-[6px]">
+        <div className="flex flex-col gap-[8px] pl-1">
           {currentlyDoing.map((item, i) => (
-            <div key={i} className="flex gap-[10px] items-start pl-2">
+            <div key={i} className="flex gap-[10px] items-start">
               <span className="flex-shrink-0 w-6 text-[13px] text-tok-keyword">[{i}]</span>
               <span className="text-[13px] leading-[1.5] tok-string">
                 <span className="text-tok-string">&quot;</span>{item}<span className="text-tok-string">&quot;</span>
@@ -152,21 +152,21 @@ export default function AboutPageUI() {
             </div>
           ))}
         </div>
-        <div className="mt-[10px] text-[13px] tok-punctuation">];</div>
+        <div className="mt-4 text-[13px] tok-punctuation">];</div>
       </div>
 
       {/* ── Interests ────────────────────────────────────── */}
-      <div className="rounded-[6px] px-5 py-4 border border-border-light bg-sidebar">
-        <div className="text-[13px] mb-3">
+      <div className="rounded-[6px] px-5 py-5 border border-border-light bg-sidebar">
+        <div className="text-[13px] mb-4">
           <span className="inline-block w-2 h-2 rounded-full mr-[6px] align-middle bg-tok-function" />
           <span className="tok-variable">interests</span>
           <span className="tok-punctuation"> = [</span>
         </div>
-        <div className="flex flex-wrap gap-2 mb-1">
+        <div className="flex flex-wrap gap-2">
           {interests.map((item) => (
             <div
               key={item.label}
-              className="inline-flex items-center gap-[6px] px-3 py-[5px] rounded-[20px] text-[12px] border border-[rgba(86,156,214,0.3)] text-text-primary transition-colors duration-150 cursor-default hover:border-tok-keyword"
+              className="inline-flex items-center gap-[6px] px-3 py-[6px] rounded-[20px] text-[12px] border border-[rgba(86,156,214,0.3)] text-text-primary transition-colors duration-150 cursor-default hover:border-tok-keyword"
               style={{ background: "rgba(86,156,214,0.1)" }}
             >
               <span>{item.icon}</span>
@@ -174,12 +174,12 @@ export default function AboutPageUI() {
             </div>
           ))}
         </div>
-        <div className="mt-[10px] text-[13px] tok-punctuation">];</div>
+        <div className="mt-4 text-[13px] tok-punctuation">];</div>
       </div>
 
       {/* ── Fun Fact ──────────────────────────────────────── */}
       <div
-        className="text-[12px] px-4 py-3 border-l-[3px] rounded-r-[4px] text-text-secondary"
+        className="text-[12px] px-5 py-4 border-l-[3px] rounded-r-[4px] text-text-secondary"
         style={{ background: "rgba(106,153,85,0.08)", borderLeftColor: "var(--tok-comment)" }}
       >
         <span className="tok-comment">// funFact:</span>{" "}

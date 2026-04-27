@@ -29,7 +29,7 @@ const skillCategories = [
       { name: "Node.js",   level: 88, color: "#68a063" },
       { name: "Express",   level: 85, color: "#d4d4d4" },
       { name: "REST APIs", level: 90, color: "#4ec9b0" },
-      { name: "Socket.IO", level: 80, color: "#010101" },
+      { name: "Socket.IO", level: 80, color: "#aaaaaa" },
       { name: "GraphQL",   level: 65, color: "#e535ab" },
     ],
   },
@@ -38,10 +38,10 @@ const skillCategories = [
     skills: [
       { name: "Machine Learning", level: 75, color: "#ff6b6b" },
       { name: "scikit-learn",     level: 72, color: "#f7931e" },
-      { name: "Pandas / NumPy",   level: 80, color: "#150458" },
+      { name: "Pandas / NumPy",   level: 80, color: "#9cdcfe" },
       { name: "LLM Integration",  level: 85, color: "#dcdcaa" },
       { name: "RAG Pipelines",    level: 78, color: "#ce9178" },
-      { name: "LangChain",        level: 75, color: "#1c3c3c" },
+      { name: "LangChain",        level: 75, color: "#4ec9b0" },
     ],
   },
   {
@@ -74,9 +74,9 @@ export default function SkillsPageUI() {
   const active = skillCategories.find((c) => c.key === activeCategory)!;
 
   return (
-    <div className="px-9 pt-7 pb-0 flex flex-col font-mono text-[13px]">
+    <div className="px-8 py-8 flex flex-col gap-6 font-mono text-[13px]">
       {/* Header */}
-      <div className="text-[14px] mb-5">
+      <div className="text-[14px]">
         <span className="tok-keyword">const</span>{" "}
         <span className="tok-variable">skills</span>
         <span className="tok-punctuation">: </span>
@@ -84,15 +84,15 @@ export default function SkillsPageUI() {
         <span className="tok-punctuation"> = &#123;</span>
       </div>
 
-      <div className="flex flex-1">
+      <div className="flex gap-6">
         {/* Category tabs */}
-        <div className="flex flex-col gap-1 w-40 flex-shrink-0 pr-4 border-r border-border-light">
+        <div className="flex flex-col gap-1 w-44 flex-shrink-0 border-r border-border-light pr-4">
           {skillCategories.map((cat) => {
             const isActive = activeCategory === cat.key;
             return (
               <button
                 key={cat.key}
-                className="flex items-center gap-2 px-3 py-2 rounded text-[12px] text-left border cursor-pointer transition-all duration-150 font-mono"
+                className="flex items-center gap-2 px-3 py-[9px] rounded text-[12px] text-left border cursor-pointer transition-all duration-150 font-mono"
                 style={{
                   background:   isActive ? "var(--bg-selected)"  : "transparent",
                   color:        isActive ? cat.color              : "var(--text-secondary)",
@@ -120,15 +120,15 @@ export default function SkillsPageUI() {
         </div>
 
         {/* Skill bars panel */}
-        <div className="flex-1 pl-6">
-          <div className="text-[13px] mb-4">
+        <div className="flex-1 flex flex-col gap-4">
+          <div className="text-[13px]">
             <span style={{ color: active.color }}>{active.icon} {active.label}</span>
             <span className="tok-punctuation"> = [</span>
           </div>
 
-          <div className="flex flex-col gap-[14px] max-w-[500px]">
+          <div className="flex flex-col gap-5 max-w-[500px]">
             {active.skills.map((skill) => (
-              <div key={skill.name} className="flex flex-col gap-[5px]">
+              <div key={skill.name} className="flex flex-col gap-[6px]">
                 <div className="flex justify-between items-center">
                   <span className="text-[12px] text-text-primary">{skill.name}</span>
                   <span className="text-[11px] font-semibold" style={{ color: skill.color }}>
@@ -148,18 +148,18 @@ export default function SkillsPageUI() {
             ))}
           </div>
 
-          <div className="mt-4 text-[13px] tok-punctuation">];</div>
+          <div className="text-[13px] tok-punctuation">];</div>
         </div>
       </div>
 
       {/* Currently Learning */}
-      <div className="mt-6 pt-5 border-t border-border-light flex flex-col gap-[10px]">
+      <div className="pt-5 border-t border-border-light flex flex-col gap-3">
         <div className="tok-comment">{`// currently_learning — always growing 🌱`}</div>
-        <div className="flex gap-[10px] flex-wrap">
+        <div className="flex gap-3 flex-wrap">
           {learningNow.map((tech) => (
             <span
               key={tech}
-              className="inline-flex items-center gap-2 px-[14px] py-[6px] rounded-[20px] text-[12px] border"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-[20px] text-[12px] border"
               style={{
                 borderColor: "rgba(78,201,176,0.4)",
                 color:       "#4ec9b0",
@@ -173,7 +173,7 @@ export default function SkillsPageUI() {
         </div>
       </div>
 
-      <div className="tok-punctuation px-0 pb-6 mt-4">&#125;;</div>
+      <div className="tok-punctuation pb-2">&#125;;</div>
     </div>
   );
 }
