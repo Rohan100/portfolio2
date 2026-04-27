@@ -75,14 +75,14 @@ export default function ActivityBar({ activeFile, onFileOpen }: Props) {
   const activePanel = FILE_TO_PANEL[activeFile];
 
   return (
-    <div className="flex flex-col items-center py-1 flex-shrink-0 z-10 border-r border-black bg-activity w-[var(--activity-w)]">
+    <div className="flex flex-col items-center py-2 flex-shrink-0 z-10 border-r border-black bg-activity w-[var(--activity-w)]">
       {ICONS.map(({ fileId, label, svg }) => {
         const panel = FILE_TO_PANEL[fileId];
         const isActive = activePanel === panel;
         return (
           <div
             key={fileId}
-            className={`relative w-12 h-12 flex items-center justify-center cursor-pointer transition-colors duration-150 ${
+            className={`relative w-12 h-[52px] flex items-center justify-center cursor-pointer transition-colors duration-150 ${
               isActive
                 ? "text-text-active activity-icon-active"
                 : "text-text-secondary hover:text-text-active"
