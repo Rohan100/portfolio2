@@ -179,7 +179,7 @@
 }
 
 /* ── Base reset ─────────────────────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
 html, body { height: 100%; overflow: hidden; }
 body {
   font-family: var(--font-inter);
@@ -348,4 +348,13 @@ body {
   border-radius: 3px;
   padding: 1px 5px;
   white-space: nowrap;
+}
+
+/* ── Hide scrollbars utility ────────────────────────────────────────────── */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }

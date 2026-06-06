@@ -81,7 +81,7 @@ function PortfolioLayoutInner({ children }: { children: React.ReactNode }) {
           />
           {/* Content Region: Page Editor + Copilot Side Panel side-by-side */}
           <div className="flex-1 flex overflow-hidden min-h-0 relative">
-            <div className="flex-1 overflow-y-auto min-w-0">
+            <div className="flex-1 overflow-y-auto min-w-0 no-scrollbar ">
               {children}
             </div>
             <CopilotPanel activeFile={activeFile} />

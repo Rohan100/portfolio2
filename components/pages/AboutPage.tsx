@@ -43,11 +43,11 @@ export default function AboutPageUI() {
   }, []);
 
   return (
-    <div className="px-8 py-8 flex flex-col gap-8 max-w-[820px] font-mono text-[13px]">
+    <div className="w-full max-w-[840px] mx-auto p-[var(--space-4)] md:p-[var(--space-8)] flex flex-col gap-[var(--space-6)] md:gap-[var(--space-8)] font-mono text-[13px]">
       {/* ── Hero ─────────────────────────────────────────── */}
-      <div className="flex items-start gap-6">
+      <div className="flex flex-col md:flex-row items-center md:items-start gap-[var(--space-6)] md:gap-[var(--space-8)] text-center md:text-left">
         {/* Avatar */}
-        <div className="relative flex-shrink-0 mt-1">
+        <div className="relative flex-shrink-0">
           <div
             className="w-[84px] h-[84px] rounded-full flex items-center justify-center text-[40px] relative z-10"
             style={{
@@ -67,7 +67,7 @@ export default function AboutPageUI() {
         </div>
 
         {/* Text */}
-        <div className="flex-1 flex flex-col gap-2">
+        <div className="flex-1 flex flex-col items-center md:items-start gap-2">
           <span className="inline-block text-[11px] italic tok-comment">
             // Software Developer
           </span>
@@ -91,7 +91,7 @@ export default function AboutPageUI() {
           </p>
 
           {/* Action buttons */}
-          <div className="flex gap-3 flex-wrap pt-1">
+          <div className="flex gap-[var(--space-3)] flex-wrap justify-center md:justify-start pt-1">
             <a
               href="https://github.com/rohannagare"
               target="_blank" rel="noopener noreferrer"
@@ -103,9 +103,9 @@ export default function AboutPageUI() {
               href="https://linkedin.com/in/rohannagare"
               target="_blank" rel="noopener noreferrer"
               className="inline-flex items-center gap-[6px] px-4 py-2 rounded text-[12px] no-underline cursor-pointer border transition-all duration-150 font-mono"
-              style={{ background: "rgba(0,119,181,0.12)", color: "var(--tok-link, #0077b5)", borderColor: "var(--tok-link, #0077b5)" }}
-              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(0,119,181,0.2)")}
-              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(0,119,181,0.12)")}
+              style={{ background: "color-mix(in srgb, var(--tok-link, #0077b5) 12%, transparent)", color: "var(--tok-link, #0077b5)", borderColor: "var(--tok-link, #0077b5)" }}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "color-mix(in srgb, var(--tok-link, #0077b5) 20%, transparent)")}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "color-mix(in srgb, var(--tok-link, #0077b5) 12%, transparent)")}
             >
               <LinkedinIcon /> LinkedIn
             </a>
@@ -120,11 +120,11 @@ export default function AboutPageUI() {
       </div>
 
       {/* ── Stats ─────────────────────────────────────────── */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-[var(--space-3)]">
         {stats.map((s) => (
           <div
             key={s.label}
-            className="flex flex-col gap-2 rounded-[6px] px-4 py-4 border border-border-light bg-sidebar transition-colors duration-150 cursor-default hover:border-accent hover:bg-[rgba(0,122,204,0.06)]"
+            className="flex flex-col gap-[var(--space-2)] rounded-[6px] p-[var(--space-4)] border border-border-light bg-sidebar transition-colors duration-150 cursor-default hover:border-accent hover:bg-[color-mix(in_srgb,var(--accent)_6%,transparent)]"
           >
             <span className="text-[18px] leading-none">{s.icon}</span>
             <span className="text-[22px] font-bold text-tok-variable font-sans leading-none">
@@ -136,15 +136,15 @@ export default function AboutPageUI() {
       </div>
 
       {/* ── Currently Doing ───────────────────────────────── */}
-      <div className="rounded-[6px] px-5 py-5 border border-border-light bg-sidebar" style={{ paddingLeft: "var(--space-6)", paddingRight: "var(--space-6)" }}>
-        <div className="text-[13px] mb-4">
+      <div className="rounded-[6px] p-[var(--space-4)] md:p-[var(--space-6)] border border-border-light bg-sidebar">
+        <div className="text-[13px] mb-[var(--space-4)]">
           <span className="inline-block w-2 h-2 rounded-full mr-[6px] align-middle bg-[#4ec9b0]" />
           <span className="tok-variable">currentlyDoing</span>
           <span className="tok-punctuation"> = [</span>
         </div>
-        <div className="flex flex-col gap-[8px] pl-1">
+        <div className="flex flex-col gap-[var(--space-2)] pl-[var(--space-1)]">
           {currentlyDoing.map((item, i) => (
-            <div key={i} className="flex gap-[10px] items-start">
+            <div key={i} className="flex gap-[var(--space-3)] items-start">
               <span className="flex-shrink-0 w-6 text-[13px] text-tok-keyword">[{i}]</span>
               <span className="text-[13px] leading-[1.5] tok-string">
                 <span className="text-tok-string">&quot;</span>{item}<span className="text-tok-string">&quot;</span>
@@ -152,34 +152,37 @@ export default function AboutPageUI() {
             </div>
           ))}
         </div>
-        <div className="mt-4 text-[13px] tok-punctuation">];</div>
+        <div className="mt-[var(--space-4)] text-[13px] tok-punctuation">];</div>
       </div>
 
       {/* ── Interests ────────────────────────────────────── */}
-      <div className="rounded-[6px] px-5 py-5 border border-border-light bg-sidebar">
-        <div className="text-[13px] mb-4">
+      <div className="rounded-[6px] p-[var(--space-4)] md:p-[var(--space-6)] border border-border-light bg-sidebar">
+        <div className="text-[13px] mb-[var(--space-4)]">
           <span className="inline-block w-2 h-2 rounded-full mr-[6px] align-middle bg-tok-function" />
           <span className="tok-variable">interests</span>
           <span className="tok-punctuation"> = [</span>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-[var(--space-2)]">
           {interests.map((item) => (
             <div
               key={item.label}
               className="inline-flex items-center gap-[6px] px-3 py-[6px] rounded-[20px] text-[12px] border text-text-primary transition-colors duration-150 cursor-default"
-              style={{ background: "rgba(86,156,214,0.1)", borderColor: "rgba(86,156,214,0.3)" }}
+              style={{
+                background: "color-mix(in srgb, var(--tok-keyword) 10%, transparent)",
+                borderColor: "color-mix(in srgb, var(--tok-keyword) 25%, transparent)"
+              }}
             >
               <span>{item.icon}</span>
               <span>{item.label}</span>
             </div>
           ))}
         </div>
-        <div className="mt-4 text-[13px] tok-punctuation">];</div>
+        <div className="mt-[var(--space-4)] text-[13px] tok-punctuation">];</div>
       </div>
 
       {/* ── Fun Fact ──────────────────────────────────────── */}
       <div
-        className="text-[12px] px-5 py-4 border-l-[3px] rounded-r-[4px] text-text-secondary"
+        className="text-[12px] p-[var(--space-4)] md:px-[var(--space-5)] md:py-[var(--space-4)] border-l-[3px] rounded-r-[4px] text-text-secondary"
         style={{ background: "color-mix(in srgb, var(--tok-comment) 10%, transparent)", borderLeftColor: "var(--tok-comment)" }}
       >
         <span className="tok-comment">// funFact:</span>{" "}
