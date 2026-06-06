@@ -68,7 +68,13 @@ const certifications = [
 
 export default function ExperiencePageUI() {
   return (
-    <div className="px-8 py-8 flex flex-col gap-8 max-w-[820px] font-mono text-[13px]">
+    <div
+      className="flex flex-col max-w-[820px] font-mono text-[13px]"
+      style={{
+        padding: "var(--space-8)",
+        gap:     "var(--space-8)",
+      }}
+    >
       {/* Header */}
       <div className="text-[16px] font-bold">
         <span className="tok-md-heading"># Education &amp; Experience</span>
@@ -77,12 +83,12 @@ export default function ExperiencePageUI() {
       {/* Timeline */}
       <div className="flex flex-col gap-0">
         {timeline.map((item, i) => (
-          <div key={i} className="flex gap-5 items-start">
+          <div key={i} className="flex gap-[var(--space-5)] items-start">
             {/* Left — dot + connector */}
             <div className="flex flex-col items-center flex-shrink-0">
               <div
                 className="w-10 h-10 rounded-full flex items-center justify-center text-[18px] z-10 flex-shrink-0"
-                style={{ background: item.color, boxShadow: `0 0 10px ${item.color}55` }}
+                style={{ background: item.color, boxShadow: `0 0 10px ${item.color}66` }}
               >
                 {item.icon}
               </div>
@@ -92,7 +98,7 @@ export default function ExperiencePageUI() {
             </div>
 
             {/* Right — content */}
-            <div className="flex-1 pb-7 pt-[6px]">
+            <div className="flex-1 pb-[var(--space-6)] pt-[6px]">
               <div className="flex justify-between items-start gap-3 mb-[6px]">
                 <span className="text-[14px] font-semibold text-text-active font-sans">
                   {item.title}
@@ -104,7 +110,7 @@ export default function ExperiencePageUI() {
               <div className="text-[12px] mb-3 text-text-secondary font-sans">
                 {item.org}
               </div>
-              <div className="flex flex-col gap-[6px]">
+              <div className="flex flex-col gap-[var(--space-2)]">
                 {item.details.map((d, di) => (
                   <div key={di} className="flex gap-2 text-[12px] text-text-secondary font-sans">
                     <span className="tok-operator flex-shrink-0">-</span>
@@ -118,18 +124,19 @@ export default function ExperiencePageUI() {
       </div>
 
       {/* Achievements */}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-[var(--space-4)]">
         <div className="text-[14px]">
           <span className="tok-md-heading">## 🏆 Achievements</span>
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-[var(--space-3)]">
           {achievements.map((a) => (
             <div
               key={a.label}
-              className="flex gap-3 items-start rounded-[6px] px-4 py-4 border border-border-light bg-sidebar transition-colors duration-150 cursor-default hover:border-tok-number"
+              className="flex gap-[var(--space-3)] items-start rounded-[6px] border border-border-light bg-sidebar transition-colors duration-150 cursor-default hover:border-tok-number"
+              style={{ padding: "var(--space-4)" }}
             >
               <span className="text-[22px] flex-shrink-0 leading-none pt-[2px]">{a.icon}</span>
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-[var(--space-1)]">
                 <div className="text-[12px] font-semibold text-text-active font-sans">
                   {a.label}
                 </div>
@@ -141,15 +148,21 @@ export default function ExperiencePageUI() {
       </div>
 
       {/* Certifications */}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-[var(--space-4)]">
         <div className="text-[14px]">
           <span className="tok-md-heading">## 📜 Certifications</span>
         </div>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-[var(--space-2)]">
           {certifications.map((cert) => (
             <div
               key={cert.name}
-              className="flex items-center gap-3 px-4 py-3 rounded border border-border-light bg-sidebar"
+              className="flex items-center gap-[var(--space-3)] rounded border border-border-light bg-sidebar"
+              style={{
+                paddingLeft:  "var(--space-4)",
+                paddingRight: "var(--space-4)",
+                paddingTop:   "var(--space-3)",
+                paddingBottom: "var(--space-3)",
+              }}
             >
               <span
                 className="w-2 h-2 rounded-full flex-shrink-0"

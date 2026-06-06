@@ -1,6 +1,13 @@
 "use client";
 
+// ── components/ActivityBar.tsx ────────────────────────────────────────────────
+// Modified: Added gear (Settings) + sparkle (Copilot) icons at the bottom.
+// Tooltips read shortcut labels from the command registry.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { FileId } from "@/lib/fileContents";
+import { useAppActions, useAppState } from "@/lib/AppStateContext";
+import { COMMAND_MAP } from "@/lib/commands";
 
 const FILE_TO_PANEL: Record<FileId, string> = {
   "about-me.ts":  "explorer",
@@ -71,36 +78,104 @@ const ICONS: { fileId: FileId; label: string; svg: React.ReactNode }[] = [
   },
 ];
 
+/** Tooltip component for activity bar icons */
+function Tooltip({ label }: { label: string }) {
+  return (
+    <span
+      className="absolute left-[calc(var(--activity-w)+8px)] text-[11px] px-2 py-1 rounded-[3px] whitespace-nowrap pointer-events-none z-[100] border opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+      style={{
+        background:  "var(--bg-tooltip)",
+        color:       "var(--text-tooltip)",
+        borderColor: "var(--border)",
+      }}
+    >
+      {label}
+    </span>
+  );
+}
+
 export default function ActivityBar({ activeFile, onFileOpen }: Props) {
   const activePanel = FILE_TO_PANEL[activeFile];
+  const actions     = useAppActions();
+  const { activePanelId } = useAppState();
+
+  const copilotShortcut  = COMMAND_MAP["toggle-copilot"]?.shortcut ?? "Ctrl+Shift+I";
+  const settingsShortcut = COMMAND_MAP["open-settings"]?.shortcut ?? "Ctrl+,";
 
   return (
-    <div className="flex flex-col items-center py-2 flex-shrink-0 z-10 border-r border-black bg-activity w-[var(--activity-w)]">
+    <div
+      className="flex flex-col items-center py-2 flex-shrink-0 z-10 border-r border-black bg-activity w-[var(--activity-w)]"
+      role="navigation"
+      aria-label="Activity Bar"
+    >
+      {/* Navigation icons */}
       {ICONS.map(({ fileId, label, svg }) => {
-        const panel = FILE_TO_PANEL[fileId];
+        const panel    = FILE_TO_PANEL[fileId];
         const isActive = activePanel === panel;
         return (
           <div
             key={fileId}
-            className={`relative w-12 h-[52px] flex items-center justify-center cursor-pointer transition-colors duration-150 ${
+            role="button"
+            tabIndex={0}
+            aria-label={label}
+            aria-pressed={isActive}
+            className={`group relative w-12 h-[52px] flex items-center justify-center cursor-pointer transition-colors duration-150 ${
               isActive
                 ? "text-text-active activity-icon-active"
                 : "text-text-secondary hover:text-text-active"
             }`}
             onClick={() => onFileOpen(fileId)}
+            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onFileOpen(fileId); }}
           >
             {svg}
-            {/* Tooltip */}
-            <span
-              className="absolute left-[calc(var(--activity-w)+8px)] bg-[#090909] text-[#ccc] text-[11px] px-2 py-1 rounded-[3px] whitespace-nowrap pointer-events-none opacity-0 z-[100] transition-opacity duration-150 border border-[#424242] group-hover:opacity-100"
-              style={{ opacity: 0 }}
-              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.opacity = "1")}
-            >
-              {label}
-            </span>
+            <Tooltip label={label} />
           </div>
         );
       })}
+
+      {/* Bottom section: Copilot + Settings */}
+      <div className="mt-auto flex flex-col items-center pb-2 gap-1">
+        {/* Copilot (sparkle) */}
+        <div
+          role="button"
+          tabIndex={0}
+          aria-label={`AI Copilot (${copilotShortcut})`}
+          aria-expanded={activePanelId === "copilot"}
+          className={`group relative w-12 h-[44px] flex items-center justify-center cursor-pointer transition-colors duration-150 ${
+            activePanelId === "copilot"
+              ? "text-text-active activity-icon-active"
+              : "text-text-secondary hover:text-text-active"
+          }`}
+          onClick={() => actions.togglePanel("copilot")}
+          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") actions.togglePanel("copilot"); }}
+        >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
+          </svg>
+          <Tooltip label={`AI Copilot (${copilotShortcut})`} />
+        </div>
+
+        {/* Settings (gear) */}
+        <div
+          role="button"
+          tabIndex={0}
+          aria-label={`Settings (${settingsShortcut})`}
+          aria-expanded={activePanelId === "settings"}
+          className={`group relative w-12 h-[44px] flex items-center justify-center cursor-pointer transition-colors duration-150 ${
+            activePanelId === "settings"
+              ? "text-text-active activity-icon-active"
+              : "text-text-secondary hover:text-text-active"
+          }`}
+          onClick={() => actions.togglePanel("settings")}
+          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") actions.togglePanel("settings"); }}
+        >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
+          <Tooltip label={`Settings (${settingsShortcut})`} />
+        </div>
+      </div>
     </div>
   );
 }

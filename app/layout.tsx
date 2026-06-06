@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono, Inter } from "next/font/google";
 import "./globals.css";
+import { buildFoucScript } from "@/lib/themes";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -14,7 +15,7 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Rohan Nagare | Full Stack Developer Portfolio",
   description:
     "Rohan Nagare is a final year IT engineering student and full stack developer skilled in React, Next.js, Node.js, and AI. Explore projects like Code Context Navigator, Multiplayer Battleship Game, and more.",
@@ -71,6 +72,17 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+      <head>
+        {/*
+         * FOUC Prevention Script — runs synchronously before React hydration.
+         * Reads localStorage and applies the saved theme's CSS variables to
+         * <html> so there is zero flash of the default theme on page load.
+         * Also applies compact-mode class if saved.
+         */}
+        <script
+          dangerouslySetInnerHTML={{ __html: buildFoucScript() }}
+        />
+      </head>
       <body>{children}</body>
     </html>
   );

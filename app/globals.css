@@ -1,57 +1,59 @@
 @import "tailwindcss";
 
-/* ── VS Code Dark+ design tokens (as Tailwind v4 theme) ─── */
+/* ── VS Code Dark+ design tokens (Tailwind v4 @theme) ───────────────────── */
+/* These are the DEFAULT values; ThemeProvider overwrites :root vars at runtime */
 @theme {
-  /* Background colours */
-  --color-editor:       #1e1e1e;
-  --color-sidebar:      #252526;
-  --color-activity:     #333333;
-  --color-titlebar:     #3c3c3c;
-  --color-tab-active:   #1e1e1e;
-  --color-tab-inactive: #2d2d2d;
-  --color-statusbar:    #007acc;
-  --color-hover:        #2a2d2e;
-  --color-selected:     #094771;
-  --color-explorer-h:   #37373d;
+  /* Backgrounds */
+  --color-editor:       var(--bg-editor,       #1e1e1e);
+  --color-sidebar:      var(--bg-sidebar,      #252526);
+  --color-activity:     var(--bg-activity,     #333333);
+  --color-titlebar:     var(--bg-titlebar,     #3c3c3c);
+  --color-tab-active:   var(--bg-tab-active,   #1e1e1e);
+  --color-tab-inactive: var(--bg-tab-inactive, #2d2d2d);
+  --color-statusbar:    var(--bg-statusbar,    #007acc);
+  --color-hover:        var(--bg-hover,        #2a2d2e);
+  --color-selected:     var(--bg-selected,     #094771);
+  --color-explorer-h:   var(--bg-explorer-h,   #37373d);
 
-  /* Border colours */
-  --color-border:        #474747;
-  --color-border-light:  #3e3e42;
+  /* Borders */
+  --color-border:       var(--border,          #474747);
+  --color-border-light: var(--border-light,    #3e3e42);
 
-  /* Text colours */
-  --color-text-primary:   #d4d4d4;
-  --color-text-secondary: #858585;
-  --color-text-muted:     #6a6a6a;
-  --color-text-active:    #ffffff;
-  --color-text-statusbar: #ffffff;
+  /* Text */
+  --color-text-primary:   var(--text-primary,   #d4d4d4);
+  --color-text-secondary: var(--text-secondary, #858585);
+  --color-text-muted:     var(--text-muted,     #6a6a6a);
+  --color-text-active:    var(--text-active,    #ffffff);
+  --color-text-statusbar: var(--text-statusbar, #ffffff);
 
   /* Accent */
-  --color-accent:       #007acc;
-  --color-accent-light: #1177bb;
+  --color-accent:       var(--accent,           #007acc);
+  --color-accent-light: var(--accent-light,     #1177bb);
 
-  /* Syntax token colours */
-  --color-tok-keyword:     #569cd6;
-  --color-tok-type:        #4ec9b0;
-  --color-tok-string:      #ce9178;
-  --color-tok-number:      #b5cea8;
-  --color-tok-comment:     #6a9955;
-  --color-tok-function:    #dcdcaa;
-  --color-tok-variable:    #9cdcfe;
-  --color-tok-parameter:   #9cdcfe;
-  --color-tok-property:    #9cdcfe;
-  --color-tok-operator:    #d4d4d4;
-  --color-tok-punctuation: #d4d4d4;
-  --color-tok-tag:         #569cd6;
-  --color-tok-attr:        #9cdcfe;
-  --color-tok-md-heading:  #569cd6;
-  --color-tok-md-bold:     #ce9178;
-  --color-tok-md-code:     #ce9178;
+  /* Syntax tokens */
+  --color-tok-keyword:     var(--tok-keyword,     #569cd6);
+  --color-tok-type:        var(--tok-type,        #4ec9b0);
+  --color-tok-string:      var(--tok-string,      #ce9178);
+  --color-tok-number:      var(--tok-number,      #b5cea8);
+  --color-tok-comment:     var(--tok-comment,     #6a9955);
+  --color-tok-function:    var(--tok-function,    #dcdcaa);
+  --color-tok-variable:    var(--tok-variable,    #9cdcfe);
+  --color-tok-parameter:   var(--tok-parameter,   #9cdcfe);
+  --color-tok-property:    var(--tok-property,    #9cdcfe);
+  --color-tok-operator:    var(--tok-operator,    #d4d4d4);
+  --color-tok-punctuation: var(--tok-punctuation, #d4d4d4);
+  --color-tok-tag:         var(--tok-tag,         #569cd6);
+  --color-tok-attr:        var(--tok-attr,        #9cdcfe);
+  --color-tok-md-heading:  var(--tok-md-heading,  #569cd6);
+  --color-tok-md-bold:     var(--tok-md-bold,     #ce9178);
+  --color-tok-md-code:     var(--tok-md-code,     #ce9178);
 
   /* Layout dimensions */
-  --width-activity:  48px;
-  --width-explorer:  240px;
-  --height-titlebar: 35px;
-  --height-tab:      35px;
+  --width-activity:   48px;
+  --width-explorer:   240px;
+  --width-panel:      360px;
+  --height-titlebar:  35px;
+  --height-tab:       35px;
   --height-statusbar: 22px;
 
   /* Fonts */
@@ -59,51 +61,124 @@
   --font-mono:  'JetBrains Mono', monospace;
 }
 
-/* ── Legacy CSS variable aliases (used by inline style= dynamic values) */
+/* ── CSS custom property defaults (VS Code Dark+) ───────────────────────── */
+/* ThemeProvider overwrites these at runtime for theme switching.             */
+/* The FOUC inline script pre-applies bgEditor/bgSidebar/accent before hydration. */
 :root {
-  --bg-editor:       #1e1e1e;
-  --bg-sidebar:      #252526;
-  --bg-activity:     #333333;
-  --bg-titlebar:     #3c3c3c;
-  --bg-tab-active:   #1e1e1e;
-  --bg-tab-inactive: #2d2d2d;
-  --bg-statusbar:    #007acc;
-  --bg-hover:        #2a2d2e;
-  --bg-selected:     #094771;
-  --bg-explorer-h:   #37373d;
-  --border:          #474747;
-  --border-light:    #3e3e42;
-  --text-primary:    #d4d4d4;
-  --text-secondary:  #858585;
-  --text-muted:      #6a6a6a;
-  --text-active:     #ffffff;
-  --text-statusbar:  #ffffff;
-  --accent:          #007acc;
-  --accent-light:    #1177bb;
-  --tok-keyword:     #569cd6;
-  --tok-type:        #4ec9b0;
-  --tok-string:      #ce9178;
-  --tok-number:      #b5cea8;
-  --tok-comment:     #6a9955;
-  --tok-function:    #dcdcaa;
-  --tok-variable:    #9cdcfe;
-  --tok-parameter:   #9cdcfe;
-  --tok-property:    #9cdcfe;
-  --tok-operator:    #d4d4d4;
-  --tok-punctuation: #d4d4d4;
-  --tok-tag:         #569cd6;
-  --tok-attr:        #9cdcfe;
-  --tok-md-heading:  #569cd6;
-  --tok-md-bold:     #ce9178;
-  --tok-md-code:     #ce9178;
+  /* Backgrounds */
+  --bg-editor:            #1e1e1e;
+  --bg-sidebar:           #252526;
+  --bg-activity:          #333333;
+  --bg-titlebar:          #3c3c3c;
+  --bg-tab-active:        #1e1e1e;
+  --bg-tab-inactive:      #2d2d2d;
+  --bg-statusbar:         #007acc;
+  --bg-hover:             #2a2d2e;
+  --bg-selected:          #094771;
+  --bg-explorer-h:        #37373d;
+  --bg-tooltip:           #252526;
+  --bg-modal-backdrop:    rgba(0,0,0,0.5);
+  --bg-input:             #3c3c3c;
+
+  /* Borders */
+  --border:               #474747;
+  --border-light:         #3e3e42;
+  --border-focus:         #007acc;
+
+  /* Text */
+  --text-primary:         #d4d4d4;
+  --text-secondary:       #858585;
+  --text-muted:           #6a6a6a;
+  --text-active:          #ffffff;
+  --text-statusbar:       #ffffff;
+  --text-tooltip:         #cccccc;
+
+  /* Accent */
+  --accent:               #007acc;
+  --accent-light:         #1177bb;
+
+  /* Status */
+  --status-success:       #4ec9b0;
+  --status-warning:       #dcdcaa;
+  --status-error:         #f44747;
+  --status-info:          #9cdcfe;
+
+  /* Scrollbar */
+  --scrollbar-thumb:      #424242;
+  --scrollbar-thumb-hover:#555555;
+
+  /* Selection */
+  --selection-bg:         #264f78;
+
+  /* Syntax tokens */
+  --tok-keyword:          #569cd6;
+  --tok-type:             #4ec9b0;
+  --tok-string:           #ce9178;
+  --tok-number:           #b5cea8;
+  --tok-comment:          #6a9955;
+  --tok-function:         #dcdcaa;
+  --tok-variable:         #9cdcfe;
+  --tok-parameter:        #9cdcfe;
+  --tok-property:         #9cdcfe;
+  --tok-operator:         #d4d4d4;
+  --tok-punctuation:      #d4d4d4;
+  --tok-tag:              #569cd6;
+  --tok-attr:             #9cdcfe;
+  --tok-regex:            #d16969;
+  --tok-constant:         #4fc1ff;
+  --tok-md-heading:       #569cd6;
+  --tok-md-bold:          #ce9178;
+  --tok-md-code:          #ce9178;
+  --tok-md-italic:        #ce9178;
+  --tok-md-link:          #4ec9b0;
+
+  /* Layout */
   --activity-w:   48px;
   --explorer-w:   240px;
+  --panel-w:      360px;
   --titlebar-h:   35px;
   --tab-h:        35px;
   --statusbar-h:  22px;
+
+  /* Spacing scale */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-12: 48px;
 }
 
-/* ── Base reset ─────────────────────────────────────────── */
+/* ── Compact mode ───────────────────────────────────────────────────────── */
+.compact-mode {
+  --space-4:  10px;
+  --space-6:  16px;
+  --space-8:  20px;
+  --titlebar-h: 30px;
+  --tab-h:      28px;
+  --statusbar-h: 20px;
+  font-size: 12px;
+}
+
+/* ── Reduced motion ─────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration:        0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration:       0.01ms !important;
+  }
+}
+/* Also controlled via Settings toggle */
+.no-animations *,
+.no-animations *::before,
+.no-animations *::after {
+  animation-duration:        0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration:       0.01ms !important;
+}
+
+/* ── Base reset ─────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; overflow: hidden; }
 body {
@@ -115,15 +190,69 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ── Scrollbar ──────────────────────────────────────────── */
+/* ── Text selection ─────────────────────────────────────────────────────── */
+::selection {
+  background: var(--selection-bg);
+  color: inherit;
+}
+
+/* ── Scrollbars ─────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #424242; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #555; }
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
 
-/* ── Keyframes ──────────────────────────────────────────── */
-@keyframes fadeIn    { from { opacity: 0; } to { opacity: 1; } }
-@keyframes blink     { 50% { opacity: 0; } }
+/* ── Focus ring (global visible focus for keyboard nav) ─────────────────── */
+:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* ── Panel slide-in (right side) ────────────────────────────────────────── */
+.panel-slide-right {
+  transform: translateX(100%);
+  transition: transform 250ms ease;
+}
+.panel-slide-right.panel-open {
+  transform: translateX(0);
+}
+
+/* ── Overlay fade ───────────────────────────────────────────────────────── */
+.overlay-fade {
+  opacity: 0;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+}
+.overlay-fade.overlay-open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ── Sidebar mobile slide ───────────────────────────────────────────────── */
+.sidebar-mobile-slide {
+  transform: translateX(-100%);
+  transition: transform 200ms ease;
+}
+.sidebar-mobile-slide.sidebar-open {
+  transform: translateX(0);
+}
+
+/* ── Keyframes ──────────────────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes blink      { 50% { opacity: 0; } }
 @keyframes ring-pulse {
   0%, 100% { transform: scale(1);    opacity: 0.5; }
   50%       { transform: scale(1.08); opacity: 0.2; }
@@ -135,15 +264,20 @@ body {
 @keyframes bar-grow {
   from { width: 0 !important; }
 }
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
 
-/* ── Utility animations ─────────────────────────────────── */
-.fade-in        { animation: fadeIn    0.2s ease; }
-.blink-cursor   { animation: blink     1s step-start infinite; }
-.ring-pulse     { animation: ring-pulse 2.5s ease-in-out infinite; }
-.pulse-green    { animation: pulse-green 1.5s ease-in-out infinite; }
-.bar-grow       { animation: bar-grow  0.6s ease forwards; transform-origin: left; }
+/* ── Utility animations ─────────────────────────────────────────────────── */
+.fade-in      { animation: fadeIn      0.2s ease; }
+.slide-up     { animation: slideUp     0.25s ease; }
+.blink-cursor { animation: blink       1s step-start infinite; }
+.ring-pulse   { animation: ring-pulse  2.5s ease-in-out infinite; }
+.pulse-green  { animation: pulse-green 1.5s ease-in-out infinite; }
+.bar-grow     { animation: bar-grow    0.6s ease forwards; transform-origin: left; }
 
-/* ── Syntax token colours ───────────────────────────────── */
+/* ── Syntax token colours ───────────────────────────────────────────────── */
 .tok-keyword    { color: var(--tok-keyword); }
 .tok-type       { color: var(--tok-type); }
 .tok-string     { color: var(--tok-string); }
@@ -159,7 +293,7 @@ body {
 .tok-md-bold    { color: var(--tok-md-bold);    font-weight: 700; }
 .tok-md-code    { color: var(--tok-md-code); }
 
-/* ── Activity bar active indicator ──────────────────────── */
+/* ── Activity bar active indicator ─────────────────────────────────────── */
 .activity-icon-active::before {
   content: '';
   position: absolute;
@@ -170,7 +304,48 @@ body {
   border-radius: 0 2px 2px 0;
 }
 
-/* ── Editor tab active top border ───────────────────────── */
+/* ── Editor tab active top border ───────────────────────────────────────── */
 .tab-active {
   border-top: 1px solid var(--accent) !important;
+}
+
+/* ── VS Code-style switch / toggle ──────────────────────────────────────── */
+.vsc-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 36px;
+  height: 18px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background 200ms ease;
+  background: var(--border);
+  flex-shrink: 0;
+}
+.vsc-switch.on { background: var(--accent); }
+.vsc-switch::after {
+  content: '';
+  position: absolute;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 200ms ease;
+}
+.vsc-switch.on::after { transform: translateX(18px); }
+
+/* ── Kbd badge ──────────────────────────────────────────────────────────── */
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  background: var(--bg-activity);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1px 5px;
+  white-space: nowrap;
 }

@@ -1,7 +1,14 @@
 "use client";
 
+// ── components/FileExplorer.tsx ───────────────────────────────────────────────
+// Modified: Sidebar toggle from AppStateContext (Ctrl+B).
+// Desktop: smooth width transition (0 ↔ 240px).
+// Mobile: absolute overlay drawer with backdrop click to close.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { useState } from "react";
 import { FILES, FileId } from "@/lib/fileContents";
+import { useAppState, useAppActions } from "@/lib/AppStateContext";
 
 interface Props {
   activeFile: FileId | null;
@@ -26,9 +33,23 @@ function ExtBadge({ ext }: { ext: string }) {
 
 export default function FileExplorer({ activeFile, onFileOpen }: Props) {
   const [folderOpen, setFolderOpen] = useState(true);
+  const { sidebarOpen } = useAppState();
+  const actions = useAppActions();
 
-  return (
-    <div className="flex flex-col overflow-hidden flex-shrink-0 transition-[width] duration-200 ease-in-out border-r w-[var(--explorer-w)] bg-sidebar border-border-light">
+  const handleFileClick = (fid: FileId) => {
+    onFileOpen(fid);
+    // On mobile, close sidebar after navigation
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      actions.setSidebar(false);
+    }
+  };
+
+  const content = (
+    <div
+      className="flex flex-col overflow-hidden h-full"
+      aria-label="File Explorer"
+      aria-expanded={sidebarOpen}
+    >
       {/* Header */}
       <div className="px-4 pt-[14px] pb-2 text-[11px] font-bold tracking-[0.1em] uppercase flex-shrink-0 text-text-secondary">
         Explorer
@@ -38,6 +59,9 @@ export default function FileExplorer({ activeFile, onFileOpen }: Props) {
       <div
         className="flex items-center gap-[6px] px-3 py-[5px] text-[13px] cursor-pointer select-none hover:bg-hover text-text-primary"
         onClick={() => setFolderOpen((o) => !o)}
+        role="button"
+        aria-expanded={folderOpen}
+        aria-label="Toggle PORTFOLIO folder"
       >
         <span className="text-[10px] text-text-secondary">
           {folderOpen ? "▾" : "▸"}
@@ -48,19 +72,25 @@ export default function FileExplorer({ activeFile, onFileOpen }: Props) {
 
       {/* File list */}
       {folderOpen && (
-        <div className="overflow-y-auto flex-1">
+        <div className="overflow-y-auto flex-1" role="tree">
           {FILES.map((f) => {
-            const ext = f.id.split(".").pop() ?? "";
+            const ext      = f.id.split(".").pop() ?? "";
             const isActive = activeFile === f.id;
             return (
               <div
                 key={f.id}
-                className={`flex items-center gap-2 py-1 pr-3 pl-8 text-[13px] cursor-pointer select-none transition-colors duration-100 ${
+                role="treeitem"
+                aria-selected={isActive}
+                tabIndex={0}
+                className={`flex items-center gap-2 py-[6px] pr-3 pl-8 text-[13px] cursor-pointer select-none transition-colors duration-100 ${
                   isActive
                     ? "bg-selected text-text-active"
                     : "text-text-primary hover:bg-hover"
                 }`}
-                onClick={() => onFileOpen(f.id)}
+                onClick={() => handleFileClick(f.id)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") handleFileClick(f.id);
+                }}
               >
                 <ExtBadge ext={ext} />
                 <span className="text-[14px] flex-shrink-0">{f.icon}</span>
@@ -71,5 +101,43 @@ export default function FileExplorer({ activeFile, onFileOpen }: Props) {
         </div>
       )}
     </div>
+  );
+
+  return (
+    <>
+      {/* ── Desktop: smooth width transition ──────────────────────────────── */}
+      <div
+        className="hidden md:flex flex-col flex-shrink-0 overflow-hidden border-r border-border-light bg-sidebar transition-[width] duration-200 ease-in-out"
+        style={{ width: sidebarOpen ? "var(--explorer-w)" : "0px" }}
+      >
+        <div style={{ width: "var(--explorer-w)", minWidth: "var(--explorer-w)" }} className="h-full">
+          {content}
+        </div>
+      </div>
+
+      {/* ── Mobile: absolute overlay drawer ───────────────────────────────── */}
+      <>
+        {/* Backdrop */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 z-20 md:hidden"
+            style={{ background: "var(--bg-modal-backdrop)" }}
+            onClick={() => actions.setSidebar(false)}
+            aria-hidden="true"
+          />
+        )}
+        {/* Drawer */}
+        <div
+          className={`
+            md:hidden fixed top-0 left-0 h-full z-30 flex flex-col overflow-hidden
+            border-r bg-sidebar border-border-light transition-transform duration-200
+            w-[var(--explorer-w)]
+            ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+          `}
+        >
+          {content}
+        </div>
+      </>
+    </>
   );
 }

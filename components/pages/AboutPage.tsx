@@ -43,7 +43,7 @@ export default function AboutPageUI() {
   }, []);
 
   return (
-    <div className="px-8 py-8 flex flex-col gap-7 max-w-[820px] font-mono text-[13px]">
+    <div className="px-8 py-8 flex flex-col gap-8 max-w-[820px] font-mono text-[13px]">
       {/* ── Hero ─────────────────────────────────────────── */}
       <div className="flex items-start gap-6">
         {/* Avatar */}
@@ -51,8 +51,8 @@ export default function AboutPageUI() {
           <div
             className="w-[84px] h-[84px] rounded-full flex items-center justify-center text-[40px] relative z-10"
             style={{
-              background: "linear-gradient(135deg,#094771,#007acc)",
-              boxShadow: "0 0 0 2px var(--border), 0 8px 24px rgba(0,122,204,0.25)",
+              background: "linear-gradient(135deg, var(--bg-selected), var(--accent))",
+              boxShadow: "0 0 0 2px var(--border), 0 8px 24px rgba(0,0,0,0.25)",
             }}
           >
             👨‍💻
@@ -103,7 +103,7 @@ export default function AboutPageUI() {
               href="https://linkedin.com/in/rohannagare"
               target="_blank" rel="noopener noreferrer"
               className="inline-flex items-center gap-[6px] px-4 py-2 rounded text-[12px] no-underline cursor-pointer border transition-all duration-150 font-mono"
-              style={{ background: "rgba(0,119,181,0.12)", color: "#0077b5", borderColor: "#0077b5" }}
+              style={{ background: "rgba(0,119,181,0.12)", color: "var(--tok-link, #0077b5)", borderColor: "var(--tok-link, #0077b5)" }}
               onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(0,119,181,0.2)")}
               onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(0,119,181,0.12)")}
             >
@@ -136,7 +136,7 @@ export default function AboutPageUI() {
       </div>
 
       {/* ── Currently Doing ───────────────────────────────── */}
-      <div className="rounded-[6px] px-5 py-5 border border-border-light bg-sidebar">
+      <div className="rounded-[6px] px-5 py-5 border border-border-light bg-sidebar" style={{ paddingLeft: "var(--space-6)", paddingRight: "var(--space-6)" }}>
         <div className="text-[13px] mb-4">
           <span className="inline-block w-2 h-2 rounded-full mr-[6px] align-middle bg-[#4ec9b0]" />
           <span className="tok-variable">currentlyDoing</span>
@@ -166,8 +166,8 @@ export default function AboutPageUI() {
           {interests.map((item) => (
             <div
               key={item.label}
-              className="inline-flex items-center gap-[6px] px-3 py-[6px] rounded-[20px] text-[12px] border border-[rgba(86,156,214,0.3)] text-text-primary transition-colors duration-150 cursor-default hover:border-tok-keyword"
-              style={{ background: "rgba(86,156,214,0.1)" }}
+              className="inline-flex items-center gap-[6px] px-3 py-[6px] rounded-[20px] text-[12px] border text-text-primary transition-colors duration-150 cursor-default"
+              style={{ background: "rgba(86,156,214,0.1)", borderColor: "rgba(86,156,214,0.3)" }}
             >
               <span>{item.icon}</span>
               <span>{item.label}</span>
@@ -180,7 +180,7 @@ export default function AboutPageUI() {
       {/* ── Fun Fact ──────────────────────────────────────── */}
       <div
         className="text-[12px] px-5 py-4 border-l-[3px] rounded-r-[4px] text-text-secondary"
-        style={{ background: "rgba(106,153,85,0.08)", borderLeftColor: "var(--tok-comment)" }}
+        style={{ background: "color-mix(in srgb, var(--tok-comment) 10%, transparent)", borderLeftColor: "var(--tok-comment)" }}
       >
         <span className="tok-comment">// funFact:</span>{" "}
         <span className="tok-string">

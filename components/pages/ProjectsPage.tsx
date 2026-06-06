@@ -63,9 +63,9 @@ const projects: Project[] = [
 ];
 
 const statusConfig = {
-  active:       { label: "● Active",      color: "#4ec9b0", bg: "rgba(78,201,176,0.12)" },
-  complete:     { label: "✓ Complete",    color: "#b5cea8", bg: "rgba(181,206,168,0.12)" },
-  "in-progress":{ label: "⟳ In Progress", color: "#dcdcaa", bg: "rgba(220,220,170,0.12)" },
+  active:       { label: "● Active",      color: "var(--status-success)", bg: "color-mix(in srgb, var(--status-success) 12%, transparent)" },
+  complete:     { label: "✓ Complete",    color: "var(--status-info)",    bg: "color-mix(in srgb, var(--status-info) 12%, transparent)" },
+  "in-progress":{ label: "⟳ In Progress", color: "var(--status-warning)", bg: "color-mix(in srgb, var(--status-warning) 12%, transparent)" },
 };
 
 const techColors: Record<string, string> = {
@@ -90,7 +90,13 @@ export default function ProjectsPageUI() {
   const [expanded, setExpanded] = useState<string | null>(null);
 
   return (
-    <div className="px-8 py-8 flex flex-col gap-5 font-mono text-[13px]">
+    <div
+      className="flex flex-col font-mono text-[13px]"
+      style={{
+        padding: "var(--space-8)",
+        gap:     "var(--space-6)",
+      }}
+    >
       {/* Header */}
       <div className="flex flex-col gap-1">
         <div className="text-[14px]">
@@ -106,7 +112,7 @@ export default function ProjectsPageUI() {
       </div>
 
       {/* Cards */}
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-[var(--space-3)]">
         {projects.map((project, i) => {
           const status = statusConfig[project.status];
           const isOpen = expanded === project.name;
@@ -116,9 +122,17 @@ export default function ProjectsPageUI() {
               key={project.name}
               className={`rounded-[6px] px-5 py-5 cursor-pointer border transition-colors duration-150 ${
                 isOpen
-                  ? "border-accent bg-[rgba(0,122,204,0.05)]"
+                  ? "border-accent"
                   : "border-border-light bg-sidebar hover:bg-hover"
               }`}
+              style={
+                isOpen
+                  ? {
+                      borderColor: "var(--accent)",
+                      background:  "color-mix(in srgb, var(--accent) 5%, transparent)",
+                    }
+                  : {}
+              }
               onClick={() => setExpanded(isOpen ? null : project.name)}
             >
               {/* Top row */}

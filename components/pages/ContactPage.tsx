@@ -75,7 +75,7 @@ export default function ContactPageUI() {
       <div className="flex items-center gap-4 rounded-[8px] px-5 py-5 border border-border-light bg-sidebar">
         <div
           className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-[15px] text-white flex-shrink-0"
-          style={{ background: "linear-gradient(135deg,#094771,#007acc)" }}
+          style={{ background: "linear-gradient(135deg, var(--bg-selected), var(--accent))" }}
         >
           RN
         </div>
@@ -89,7 +89,7 @@ export default function ContactPageUI() {
         </div>
         <div
           className="flex items-center gap-[6px] text-[11px] rounded-[12px] px-3 py-[6px] border whitespace-nowrap"
-          style={{ color: "#4ec9b0", background: "rgba(78,201,176,0.1)", borderColor: "rgba(78,201,176,0.3)" }}
+          style={{ color: "var(--status-success)", background: "color-mix(in srgb, var(--status-success) 12%, transparent)", borderColor: "color-mix(in srgb, var(--status-success) 35%, transparent)" }}
         >
           <span className="w-[6px] h-[6px] bg-[#4ec9b0] rounded-full pulse-green" />
           Available for opportunities

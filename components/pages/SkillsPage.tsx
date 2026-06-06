@@ -74,7 +74,13 @@ export default function SkillsPageUI() {
   const active = skillCategories.find((c) => c.key === activeCategory)!;
 
   return (
-    <div className="px-8 py-8 flex flex-col gap-6 font-mono text-[13px]">
+    <div
+      className="flex flex-col font-mono text-[13px]"
+      style={{
+        padding: "var(--space-8)",
+        gap:     "var(--space-6)",
+      }}
+    >
       {/* Header */}
       <div className="text-[14px]">
         <span className="tok-keyword">const</span>{" "}
@@ -84,9 +90,9 @@ export default function SkillsPageUI() {
         <span className="tok-punctuation"> = &#123;</span>
       </div>
 
-      <div className="flex gap-6">
+      <div className="flex gap-[var(--space-6)]">
         {/* Category tabs */}
-        <div className="flex flex-col gap-1 w-44 flex-shrink-0 border-r border-border-light pr-4">
+        <div className="flex flex-col gap-[var(--space-1)] w-44 flex-shrink-0 border-r border-border-light pr-[var(--space-4)]">
           {skillCategories.map((cat) => {
             const isActive = activeCategory === cat.key;
             return (
@@ -96,7 +102,7 @@ export default function SkillsPageUI() {
                 style={{
                   background:   isActive ? "var(--bg-selected)"  : "transparent",
                   color:        isActive ? cat.color              : "var(--text-secondary)",
-                  borderColor:  isActive ? cat.color              : "transparent",
+                  borderColor:  isActive ? cat.color              : "var(--border-light)",
                 }}
                 onMouseEnter={(e) => {
                   if (!isActive) {
@@ -120,15 +126,15 @@ export default function SkillsPageUI() {
         </div>
 
         {/* Skill bars panel */}
-        <div className="flex-1 flex flex-col gap-4">
+        <div className="flex-1 flex flex-col gap-[var(--space-4)]">
           <div className="text-[13px]">
             <span style={{ color: active.color }}>{active.icon} {active.label}</span>
             <span className="tok-punctuation"> = [</span>
           </div>
 
-          <div className="flex flex-col gap-5 max-w-[500px]">
+          <div className="flex flex-col gap-[var(--space-4)] max-w-[500px]">
             {active.skills.map((skill) => (
-              <div key={skill.name} className="flex flex-col gap-[6px]">
+              <div key={skill.name} className="flex flex-col gap-[var(--space-2)]">
                 <div className="flex justify-between items-center">
                   <span className="text-[12px] text-text-primary">{skill.name}</span>
                   <span className="text-[11px] font-semibold" style={{ color: skill.color }}>
@@ -153,7 +159,7 @@ export default function SkillsPageUI() {
       </div>
 
       {/* Currently Learning */}
-      <div className="pt-5 border-t border-border-light flex flex-col gap-3">
+      <div className="pt-[var(--space-6)] border-t border-border-light flex flex-col gap-[var(--space-3)]">
         <div className="tok-comment">{`// currently_learning — always growing 🌱`}</div>
         <div className="flex gap-3 flex-wrap">
           {learningNow.map((tech) => (
@@ -161,12 +167,15 @@ export default function SkillsPageUI() {
               key={tech}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-[20px] text-[12px] border"
               style={{
-                borderColor: "rgba(78,201,176,0.4)",
-                color:       "#4ec9b0",
-                background:  "rgba(78,201,176,0.08)",
+                borderColor: "color-mix(in srgb, var(--status-success) 40%, transparent)",
+                color:       "var(--status-success)",
+                background:  "color-mix(in srgb, var(--status-success) 8%, transparent)",
               }}
             >
-              <span className="w-[6px] h-[6px] bg-[#4ec9b0] rounded-full flex-shrink-0 pulse-green" />
+              <span
+                className="w-[6px] h-[6px] rounded-full flex-shrink-0 pulse-green"
+                style={{ background: "var(--status-success)" }}
+              />
               {tech}
             </span>
           ))}
