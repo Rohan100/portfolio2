@@ -63,24 +63,24 @@ export default function ContactPageUI() {
   };
 
   return (
-    <div className="px-8 py-8 flex flex-col gap-6 max-w-[700px] font-mono text-[13px]">
+    <div className="px-4 py-6 md:px-8 md:py-8 flex flex-col gap-6 max-w-[700px] font-mono text-[13px]">
       {/* Header comments */}
       <div className="flex flex-col gap-[6px] text-[12px]">
         <div className="tok-comment">{`// Let's connect! All links are real — don't be a stranger 👋`}</div>
         <div className="tok-comment">{`// responseTime: "Usually within 24 hours"`}</div>
-        <div className="tok-comment">{`// preferredContact: "LinkedIn DM or email"`}</div>
+        <div className="tok-comment hidden sm:block">{`// preferredContact: "LinkedIn DM or email"`}</div>
       </div>
 
       {/* Identity card */}
-      <div className="flex items-center gap-4 rounded-[8px] px-5 py-5 border border-border-light bg-sidebar">
+      <div className="flex flex-wrap items-center gap-3 rounded-[8px] px-4 py-4 md:px-5 md:py-5 border border-border-light bg-sidebar">
         <div
           className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-[15px] text-white flex-shrink-0"
           style={{ background: "linear-gradient(135deg, var(--bg-selected), var(--accent))" }}
         >
           RN
         </div>
-        <div className="flex-1 flex flex-col gap-[4px]">
-          <span className="text-[16px] font-bold text-text-active font-sans">
+        <div className="flex-1 min-w-0 flex flex-col gap-[4px]">
+          <span className="text-[16px] font-bold text-text-active font-sans truncate">
             Rohan Nagare
           </span>
           <span className="text-[12px] flex items-center gap-1 text-text-secondary">
@@ -88,16 +88,21 @@ export default function ContactPageUI() {
           </span>
         </div>
         <div
-          className="flex items-center gap-[6px] text-[11px] rounded-[12px] px-3 py-[6px] border whitespace-nowrap"
-          style={{ color: "var(--status-success)", background: "color-mix(in srgb, var(--status-success) 12%, transparent)", borderColor: "color-mix(in srgb, var(--status-success) 35%, transparent)" }}
+          className="flex items-center gap-[6px] text-[11px] rounded-[12px] px-3 py-[6px] border whitespace-nowrap flex-shrink-0"
+          style={{
+            color: "var(--status-success)",
+            background: "color-mix(in srgb, var(--status-success) 12%, transparent)",
+            borderColor: "color-mix(in srgb, var(--status-success) 35%, transparent)",
+          }}
         >
-          <span className="w-[6px] h-[6px] bg-[#4ec9b0] rounded-full pulse-green" />
-          Available for opportunities
+          <span className="w-[6px] h-[6px] bg-[#4ec9b0] rounded-full pulse-green flex-shrink-0" />
+          <span className="hidden xs:inline">Available for opportunities</span>
+          <span className="xs:hidden">Available</span>
         </div>
       </div>
 
-      {/* Links grid */}
-      <div className="grid grid-cols-2 gap-3">
+      {/* Links grid — 1 col on mobile, 2 cols on sm+ */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {contactLinks.map((link) => {
           const isHovered = activeLink === link.id;
           return (
@@ -106,10 +111,10 @@ export default function ContactPageUI() {
               href={link.href}
               target={link.id !== "email" ? "_blank" : undefined}
               rel="noopener noreferrer"
-              className="flex items-center gap-3 px-4 py-4 rounded-[6px] no-underline border transition-all duration-150 cursor-pointer"
+              className="flex items-center gap-3 px-4 py-4 rounded-[6px] no-underline border transition-all duration-150 cursor-pointer min-w-0"
               style={{
-                background:  isHovered ? link.bg                   : "var(--bg-sidebar)",
-                borderColor: isHovered ? link.color                : "var(--border-light)",
+                background:  isHovered ? link.bg                : "var(--bg-sidebar)",
+                borderColor: isHovered ? link.color             : "var(--border-light)",
               }}
               onMouseEnter={() => setActiveLink(link.id)}
               onMouseLeave={() => setActiveLink(null)}
@@ -117,14 +122,14 @@ export default function ContactPageUI() {
               <span className="flex-shrink-0 text-[20px] flex items-center" style={{ color: link.color }}>
                 {link.icon}
               </span>
-              <div className="flex-1 flex flex-col gap-[4px]">
+              <div className="flex-1 flex flex-col gap-[4px] min-w-0">
                 <span className="text-[11px] tok-property">{link.label}</span>
                 <span className="text-[11px] overflow-hidden text-ellipsis whitespace-nowrap tok-string">
                   &quot;{link.value}&quot;
                 </span>
               </div>
               <span
-                className="transition-transform duration-150"
+                className="flex-shrink-0 transition-transform duration-150"
                 style={{
                   color:     link.color,
                   transform: isHovered ? "translateX(3px)" : "translateX(0)",
@@ -140,8 +145,10 @@ export default function ContactPageUI() {
       {/* Quick copy email */}
       <div className="flex flex-col gap-2">
         <span className="tok-comment">// Quick copy</span>
-        <div className="flex items-center gap-3 rounded px-4 py-3 text-[12px] border border-border-light bg-sidebar">
-          <span className="tok-string flex-1">&quot;rohannagare.dev@gmail.com&quot;</span>
+        <div className="flex flex-wrap items-center gap-3 rounded px-4 py-3 text-[12px] border border-border-light bg-sidebar">
+          <span className="tok-string flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">
+            &quot;rohannagare.dev@gmail.com&quot;
+          </span>
           <button
             className="inline-flex items-center gap-[5px] px-3 py-[6px] rounded-[3px] text-[11px] cursor-pointer border transition-all duration-150 flex-shrink-0 bg-activity border-border text-text-secondary hover:bg-hover hover:text-text-active font-mono"
             onClick={handleCopyEmail}
@@ -163,9 +170,9 @@ export default function ContactPageUI() {
         </div>
         <div className="flex flex-col gap-[8px] pl-4">
           {openTo.map((item) => (
-            <div key={item.text} className="flex items-center gap-3 text-[12px]">
-              <span>{item.icon}</span>
-              <span className="tok-string">&quot;{item.text}&quot;</span>
+            <div key={item.text} className="flex items-start gap-3 text-[12px]">
+              <span className="flex-shrink-0">{item.icon}</span>
+              <span className="tok-string break-words">&quot;{item.text}&quot;</span>
             </div>
           ))}
         </div>
@@ -174,7 +181,7 @@ export default function ContactPageUI() {
 
       {/* Tip block */}
       <div
-        className="flex flex-col gap-[4px] px-5 py-4 border-l-[3px] rounded-r text-[12px]"
+        className="flex flex-col gap-[4px] px-4 py-4 md:px-5 border-l-[3px] rounded-r text-[12px]"
         style={{ background: "rgba(106,153,85,0.06)", borderLeftColor: "var(--tok-comment)" }}
       >
         <div className="tok-comment">{`/**`}</div>

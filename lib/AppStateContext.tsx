@@ -73,8 +73,10 @@ function readLS<T>(key: string, fallback: T): T {
 // ── Initial state ─────────────────────────────────────────────────────────────
 function buildInitialState(): AppState {
   const sidebarDefault = readLS(LS_SIDEBAR_DEF, true);
+  // On mobile screens, always start with sidebar closed
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
   return {
-    sidebarOpen:        sidebarDefault,
+    sidebarOpen:        isMobile ? false : sidebarDefault,
     activePanelId:      null,
     commandPaletteOpen: false,
     themeSelectorOpen:  false,

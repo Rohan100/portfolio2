@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono, Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { buildFoucScript } from "@/lib/themes";
 
@@ -72,18 +73,21 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
-      <head>
+      <body>
         {/*
          * FOUC Prevention Script — runs synchronously before React hydration.
          * Reads localStorage and applies the saved theme's CSS variables to
          * <html> so there is zero flash of the default theme on page load.
          * Also applies compact-mode class if saved.
+         * Uses next/script with beforeInteractive to execute before hydration.
          */}
-        <script
+        <Script
+          id="fouc-prevention"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: buildFoucScript() }}
         />
-      </head>
-      <body>{children}</body>
+        {children}
+      </body>
     </html>
   );
 }
