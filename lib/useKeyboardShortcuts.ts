@@ -31,7 +31,7 @@ function matches(
  * Call ONCE inside a component that is a child of AppStateProvider.
  */
 export function usePortfolioShortcuts(
-  _router: ReturnType<typeof useRouter>
+  router: ReturnType<typeof useRouter>
 ): void {
   const actions = useAppActions();
 
@@ -131,7 +131,7 @@ export function usePortfolioShortcuts(
       // ── Ctrl+, — Settings ─────────────────────────────────────────────────
       if (matches(e, true, false, ",")) {
         e.preventDefault();
-        a.togglePanel("settings");
+        router.push("/settings");
         return;
       }
 

@@ -6,6 +6,7 @@ import ProjectsPageUI from "./pages/ProjectsPage";
 import SkillsPageUI from "./pages/SkillsPage";
 import ExperiencePageUI from "./pages/ExperiencePage";
 import ContactPageUI from "./pages/ContactPage";
+import SettingsPageUI from "./pages/SettingsPage";
 
 interface Props {
   activeFile: FileId | null;
@@ -17,6 +18,7 @@ const FILE_TO_UI: Record<FileId, React.ReactNode> = {
   "skills.json":  <SkillsPageUI />,
   "experience.md":<ExperiencePageUI />,
   "contact.js":   <ContactPageUI />,
+  "settings.json":<SettingsPageUI />,
 };
 
 export default function EditorArea({ activeFile }: Props) {

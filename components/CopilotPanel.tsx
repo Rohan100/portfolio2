@@ -2,7 +2,8 @@
 
 // ── components/CopilotPanel.tsx ───────────────────────────────────────────────
 // IDE AI Chat UI — styled like GitHub Copilot Chat / Cursor AI.
-// Updated to match the user's mock layout and colors dynamically using theme tokens.
+// Workspace-style layout (side-by-side on desktop, resizable via dragging,
+// persisted in localStorage, overlay on mobile).
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState, useRef, useEffect, useCallback } from "react";
@@ -366,11 +367,48 @@ export default function CopilotPanel({ activeFile }: Props) {
   const [selectedModel,      setSelectedModel]      = useState("Gemini 3.5 Flash (Medium)");
   const [modelDropdownOpen,  setModelDropdownOpen]  = useState(false);
 
+  // Layout sizing state: default 350px width, resizable
+  const [width,              setWidth]              = useState(350);
+  const [isDragging,         setIsDragging]         = useState(false);
+  const [isMobile,           setIsMobile]           = useState(false);
+
   const bottomRef       = useRef<HTMLDivElement>(null);
   const inputRef        = useRef<HTMLTextAreaElement>(null);
   const threadScrollRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom on new messages
+  // Track viewport dimension changes for mobile layout checks
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    function checkMobile() {
+      setIsMobile(window.innerWidth < 768);
+    }
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Fetch initial width configurations on client mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedWidth = localStorage.getItem("portfolio-copilot-width");
+      if (savedWidth) {
+        const parsed = parseInt(savedWidth, 10);
+        if (!isNaN(parsed) && parsed >= 280 && parsed <= 600) {
+          setWidth(parsed);
+        }
+      }
+    }
+  }, []);
+
+  // Persist resized width modifications upon mouse drag release
+  useEffect(() => {
+    if (!isDragging && typeof window !== "undefined") {
+      localStorage.setItem("portfolio-copilot-width", width.toString());
+    }
+  }, [width, isDragging]);
+
+  // Scroll active window viewport to bottom on new messaging additions
   useEffect(() => {
     if (threadScrollRef.current) {
       threadScrollRef.current.scrollTop = threadScrollRef.current.scrollHeight;
@@ -378,7 +416,7 @@ export default function CopilotPanel({ activeFile }: Props) {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
-  // Focus input when panel opens
+  // Set keyboard focus on core textarea upon open panel transition
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 300);
@@ -453,6 +491,31 @@ export default function CopilotPanel({ activeFile }: Props) {
       sendMessage(input);
     }
   }
+
+  // Width adjustment trigger
+  const startDrag = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      setIsDragging(true);
+
+      const handleMouseMove = (moveEvent: MouseEvent) => {
+        const newWidth = window.innerWidth - moveEvent.clientX;
+        if (newWidth >= 280 && newWidth <= 600) {
+          setWidth(newWidth);
+        }
+      };
+
+      const handleMouseUp = () => {
+        setIsDragging(false);
+        document.removeEventListener("mousemove", handleMouseMove);
+        document.removeEventListener("mouseup", handleMouseUp);
+      };
+
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+    },
+    []
+  );
 
   const renderInputCard = () => {
     return (
@@ -592,10 +655,38 @@ export default function CopilotPanel({ activeFile }: Props) {
     );
   };
 
+  // ── Layout Style Calculations ──────────────────────────────────────────────
+
+  const containerClass = isMobile
+    ? `fixed top-0 right-0 h-full z-40 flex flex-col overflow-hidden w-full`
+    : `relative flex flex-col h-full overflow-hidden flex-shrink-0 z-10`;
+
+  const containerStyle = isMobile
+    ? ({
+        background:  "var(--bg-sidebar)",
+        borderColor: "var(--border)",
+        transform:   isOpen ? "translateX(0)" : "translateX(100%)",
+        transition:  "transform 280ms cubic-bezier(0.4, 0, 0.2, 1)",
+      } as React.CSSProperties)
+    : ({
+        background:  "var(--bg-sidebar)",
+        borderColor: "var(--border)",
+        borderLeftWidth: isOpen ? "1px" : "0px",
+        width:       isOpen ? `${width}px` : "0px",
+        visibility:  isOpen ? "visible" : "hidden",
+        transition:  isDragging
+          ? "none"
+          : "width 250ms cubic-bezier(0.4, 0, 0.2, 1), border-left-width 250ms cubic-bezier(0.4, 0, 0.2, 1), visibility 250ms step-end",
+      } as React.CSSProperties);
+
+  const innerWrapperStyle = isMobile
+    ? { width: "100%", height: "100%", display: "flex", flexDirection: "column" as const }
+    : { width: `${width}px`, height: "100%", display: "flex", flexDirection: "column" as const };
+
   return (
     <>
-      {/* Mobile backdrop */}
-      {isOpen && (
+      {/* Mobile backdrop overlay */}
+      {isMobile && isOpen && (
         <div
           className="fixed inset-0 z-30 md:hidden"
           style={{ background: "var(--bg-modal-backdrop)" }}
@@ -606,26 +697,26 @@ export default function CopilotPanel({ activeFile }: Props) {
 
       <FocusTrap
         active={isOpen}
-        className={`
-          fixed top-0 right-0 h-full z-40 flex flex-col overflow-hidden
-          border-l w-full md:w-[380px]
-          ${isOpen ? "translate-x-0" : "translate-x-full"}
-        `}
-        style={{
-          background:  "var(--bg-sidebar)",
-          borderColor: "var(--border)",
-          transition:  "transform 280ms cubic-bezier(0.4,0,0.2,1)",
-        } as React.CSSProperties}
+        className={containerClass}
+        style={containerStyle}
       >
         <div
           role="dialog"
           aria-modal="true"
           aria-label="AI Agent Chat"
-          className="flex flex-col h-full overflow-hidden"
+          style={innerWrapperStyle}
         >
+          {/* Resize Handle (Desktop Only, active when open) */}
+          {!isMobile && isOpen && (
+            <div
+              onMouseDown={startDrag}
+              className="absolute left-[-3px] top-0 bottom-0 w-[6px] cursor-col-resize z-50 hover:bg-accent/40 active:bg-accent transition-colors"
+            />
+          )}
+
           {/* ── Header ─────────────────────────────────────────────────────── */}
           <div
-            className="flex items-center justify-between px-4 py-[10px] flex-shrink-0 border-b"
+            className="flex items-center justify-between px-4 py-[10px] flex-shrink-0 border-b relative"
             style={{ borderColor: "var(--border)", background: "var(--bg-sidebar)" }}
           >
             <span className="text-[13px] font-semibold text-text-primary select-none font-sans">
@@ -691,7 +782,7 @@ export default function CopilotPanel({ activeFile }: Props) {
           {/* ── Main workspace content wrapper ────────────────────────────── */}
           <div className="flex-1 flex flex-col overflow-hidden relative">
             {messages.length === 0 ? (
-              /* Empty State (looks exactly like the image) */
+              /* Empty State */
               <div className="flex-1 flex flex-col justify-center px-4 pb-16">
                 <h1 className="text-[28px] font-bold tracking-tight mb-5 text-text-active px-2 font-sans select-none">
                   portfolio

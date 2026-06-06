@@ -6,7 +6,8 @@ export type FileId =
   | "projects.ts"
   | "skills.json"
   | "experience.md"
-  | "contact.js";
+  | "contact.js"
+  | "settings.json";
 
 export type FileLanguage = "typescript" | "json" | "markdown" | "javascript";
 
@@ -269,6 +270,23 @@ const contact = {
  */
 
 export default contact;`,
+  },
+  {
+    id: "settings.json",
+    icon: "⚙️",
+    language: "json",
+    content: `{
+  "workbench.colorTheme": "VS Code Dark+",
+  "editor.fontSize": 13,
+  "editor.lineHeight": 1.5,
+  "editor.minimap.enabled": false,
+  "editor.formatOnSave": true,
+  "editor.tabSize": 2,
+  "editor.fontFamily": "JetBrains Mono",
+  "terminal.integrated.fontSize": 12,
+  "portfolio.animations": true,
+  "portfolio.compactMode": false
+}`,
   },
 ];
 

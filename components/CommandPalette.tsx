@@ -45,7 +45,7 @@ function executeCommand(
     case "open-command-palette":/* already open */ break;
     case "open-theme-selector": actions.openThemeSelector(); break;
     case "open-search":         actions.togglePanel("search"); break;
-    case "open-settings":       actions.togglePanel("settings"); break;
+    case "open-settings":       router.push("/settings"); break;
     case "show-shortcuts":      actions.showToast(); break;
   }
 }

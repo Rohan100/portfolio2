@@ -10,11 +10,12 @@ import { useAppActions, useAppState } from "@/lib/AppStateContext";
 import { COMMAND_MAP } from "@/lib/commands";
 
 const FILE_TO_PANEL: Record<FileId, string> = {
-  "about-me.ts":  "explorer",
-  "projects.ts":  "projects",
-  "skills.json":  "skills",
-  "experience.md":"experience",
-  "contact.js":   "contact",
+  "about-me.ts": "explorer",
+  "projects.ts": "projects",
+  "skills.json": "skills",
+  "experience.md": "experience",
+  "contact.js": "contact",
+  "settings.json": ""
 };
 
 interface Props {
@@ -160,14 +161,14 @@ export default function ActivityBar({ activeFile, onFileOpen }: Props) {
           role="button"
           tabIndex={0}
           aria-label={`Settings (${settingsShortcut})`}
-          aria-expanded={activePanelId === "settings"}
+          aria-expanded={activeFile === "settings.json"}
           className={`group relative w-12 h-[44px] flex items-center justify-center cursor-pointer transition-colors duration-150 ${
-            activePanelId === "settings"
+            activeFile === "settings.json"
               ? "text-text-active activity-icon-active"
               : "text-text-secondary hover:text-text-active"
           }`}
-          onClick={() => actions.togglePanel("settings")}
-          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") actions.togglePanel("settings"); }}
+          onClick={() => onFileOpen("settings.json")}
+          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onFileOpen("settings.json"); }}
         >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="3" />

@@ -15,7 +15,6 @@ import StatusBar from "@/components/StatusBar";
 import EditorTabs from "@/components/EditorTabs";
 import CommandPalette from "@/components/CommandPalette";
 import ThemeSelector from "@/components/ThemeSelector";
-import SettingsPanel from "@/components/SettingsPanel";
 import SearchPanel from "@/components/SearchPanel";
 import CopilotPanel from "@/components/CopilotPanel";
 import ShortcutsToast from "@/components/ShortcutsToast";
@@ -30,6 +29,7 @@ const PATH_TO_FILE: Record<string, FileId> = {
   "/skills":     "skills.json",
   "/experience": "experience.md",
   "/contact":    "contact.js",
+  "/settings":   "settings.json",
 };
 
 const FILE_TO_PATH: Record<FileId, string> = {
@@ -38,6 +38,7 @@ const FILE_TO_PATH: Record<FileId, string> = {
   "skills.json":  "/skills",
   "experience.md":"/experience",
   "contact.js":   "/contact",
+  "settings.json":"/settings",
 };
 
 // Inner layout — must be a child of AppStateProvider to access context
@@ -46,34 +47,12 @@ function PortfolioLayoutInner({ children }: { children: React.ReactNode }) {
   const router   = useRouter();
 
   const activeFile: FileId = PATH_TO_FILE[pathname] ?? "about-me.ts";
-  const [openFiles, setOpenFiles] = useState<FileId[]>([activeFile]);
-
-  useEffect(() => {
-    const fid = PATH_TO_FILE[pathname] ?? "about-me.ts";
-    setOpenFiles((prev) => (prev.includes(fid) ? prev : [...prev, fid]));
-  }, [pathname]);
 
   const handleFileOpen = useCallback(
     (fid: FileId) => {
-      setOpenFiles((prev) => (prev.includes(fid) ? prev : [...prev, fid]));
       router.push(FILE_TO_PATH[fid]);
     },
     [router]
-  );
-
-  const handleTabClose = useCallback(
-    (fid: FileId) => {
-      setOpenFiles((prev) => {
-        const next = prev.filter((f) => f !== fid);
-        if (fid === activeFile) {
-          const idx    = prev.indexOf(fid);
-          const newFid = next[Math.min(idx, next.length - 1)];
-          router.push(newFid ? FILE_TO_PATH[newFid] : "/");
-        }
-        return next;
-      });
-    },
-    [activeFile, router]
   );
 
   const currentLang = FILE_MAP[activeFile].language;
@@ -97,20 +76,20 @@ function PortfolioLayoutInner({ children }: { children: React.ReactNode }) {
         {/* Editor column */}
         <div className="flex-1 flex flex-col overflow-hidden bg-editor min-w-0">
           <EditorTabs
-            openFiles={openFiles}
             activeFile={activeFile}
             onTabClick={(fid) => router.push(FILE_TO_PATH[fid])}
-            onTabClose={handleTabClose}
           />
-          <div className="flex-1 overflow-y-auto">
-            {children}
+          {/* Content Region: Page Editor + Copilot Side Panel side-by-side */}
+          <div className="flex-1 flex overflow-hidden min-h-0 relative">
+            <div className="flex-1 overflow-y-auto min-w-0">
+              {children}
+            </div>
+            <CopilotPanel activeFile={activeFile} />
           </div>
         </div>
 
         {/* ── Right-side panels (one at a time, slide from right) ─────────── */}
-        <SettingsPanel />
         <SearchPanel />
-        <CopilotPanel activeFile={activeFile} />
       </div>
 
       {/* ── Status bar ───────────────────────────────────────────────────── */}
