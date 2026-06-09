@@ -4,11 +4,23 @@
 // IDE AI Chat UI — styled like GitHub Copilot Chat / Cursor AI.
 // Workspace-style layout (side-by-side on desktop, resizable via dragging,
 // persisted in localStorage, overlay on mobile).
+//
+// Integration: POST /api/chat/stream (SSE) via lib/chatApi.ts
+//   - Conversation history passed per-request (stateless backend)
+//   - Streaming tokens rendered in real time
+//   - Full error handling with user-friendly messages & retry
+//   - Backend health badge in header
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useAppState, useAppActions } from "@/lib/AppStateContext";
 import FocusTrap from "./FocusTrap";
+import {
+  streamChat,
+  checkHealth,
+  ChatApiError,
+  type HistoryMessage,
+} from "@/lib/chatApi";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -26,112 +38,13 @@ interface Message {
   codeBlock?: CodeBlock;
   timestamp: Date;
   streaming?: boolean;
-}
-
-// ── Canned Q&A responses ──────────────────────────────────────────────────────
-
-interface QA {
-  keywords: string[];
-  answer: string;
-  code?: CodeBlock;
-}
-
-const QA_PAIRS: QA[] = [
-  {
-    keywords: ["skills", "stack", "tech", "technologies", "languages"],
-    answer:
-      "Rohan's primary stack is **TypeScript + React + Next.js** on the frontend, **Node.js + Express** on the backend, and **PostgreSQL / MongoDB** for data. He also works with Docker, Redis, and AWS for deployment.",
-    code: {
-      lang: "json",
-      code: `{
-  "languages":  ["TypeScript", "JavaScript", "Python", "Java"],
-  "frontend":   ["React", "Next.js", "TailwindCSS", "D3.js"],
-  "backend":    ["Node.js", "Express", "Socket.IO"],
-  "databases":  ["PostgreSQL", "MongoDB", "Redis"],
-  "devops":     ["Docker", "GitHub Actions", "AWS", "Nginx"]
-}`,
-    },
-  },
-  {
-    keywords: ["project", "projects", "built", "work", "portfolio"],
-    answer:
-      "Rohan has shipped **4 major projects**: Code Context Navigator (VS Code extension), Multiplayer Battleship (real-time game), Safe Neighborhood Map (hackathon winner), and a full Web IDE with subdomain hosting.",
-  },
-  {
-    keywords: ["experience", "background", "edu", "degree", "university"],
-    answer:
-      "He's completing a **B.E. in Information Technology** at Savitribai Phule Pune University (CGPA 8.6 / 10). He's also an active open-source contributor with 400+ GitHub commits and a hackathon lead who won Best Social Impact at PuneTech 2024.",
-  },
-  {
-    keywords: ["contact", "hire", "email", "reach", "available", "job"],
-    answer:
-      "Rohan is **open to full-time SDE roles, internships, and open-source collaboration**. Best way to reach him is via email at `rohannagare.dev@gmail.com` or LinkedIn.",
-  },
-  {
-    keywords: ["theme", "dark", "color", "ui", "design"],
-    answer:
-      "This portfolio supports **10 VS Code themes** — from Dark+, Dracula, and Tokyo Night to GitHub Light and Solarized. Press `Ctrl+K Ctrl+T` to switch themes, or open Settings with `Ctrl+,`.",
-    code: {
-      lang: "ts",
-      code: `// Available themes
-const themes = [
-  "vscode-dark", "monokai",     "dracula",
-  "github-dark", "github-light","one-dark-pro",
-  "solarized-dark", "solarized-light",
-  "nord",        "tokyo-night"
-];`,
-    },
-  },
-  {
-    keywords: ["about", "who", "introduce", "rohan", "person"],
-    answer:
-      "Rohan Nagare is a **final-year IT engineering student** from Pune who loves building developer tools, AI-powered applications, and scalable full-stack systems. He describes himself as a keyboard-driven developer who lives in the terminal.",
-  },
-  {
-    keywords: ["shortcut", "keyboard", "hotkey", "ctrl"],
-    answer:
-      "Here are the key shortcuts in this portfolio:",
-    code: {
-      lang: "bash",
-      code: `Ctrl+Shift+P  # Command Palette
-Ctrl+B        # Toggle Sidebar  
-Ctrl+K Ctrl+T # Change Theme
-Ctrl+Shift+F  # Search Portfolio
-Ctrl+,        # Settings
-F1            # Show all shortcuts`,
-    },
-  },
-  {
-    keywords: ["copilot", "ai", "chat", "you", "what are you"],
-    answer:
-      "I'm the **Portfolio Copilot** — a simulated AI chat built into this VS Code-themed portfolio. Ask me anything about Rohan's skills, projects, experience, or how to navigate this site!",
-  },
-];
-
-function getResponse(input: string): { answer: string; code?: CodeBlock } {
-  const lower = input.toLowerCase();
-  const match = QA_PAIRS.find((qa) =>
-    qa.keywords.some((k) => lower.includes(k))
-  );
-  if (match) return { answer: match.answer, code: match.code };
-  return {
-    answer:
-      "Great question! I don't have a specific answer for that, but feel free to browse the sections in the sidebar — About, Projects, Skills, Experience, and Contact. Or try `Ctrl+Shift+F` to search!",
-  };
+  error?: boolean;        // true when this message is an error notice
+  retryable?: boolean;    // show Retry button
 }
 
 function uid() {
   return Math.random().toString(36).slice(2);
 }
-
-// ── Models Registry ───────────────────────────────────────────────────────────
-
-const MODELS = [
-  "Gemini 3.5 Flash (Medium)",
-  "Gemini 3.5 Pro (Large)",
-  "Claude 3.5 Sonnet",
-  "GPT-4o"
-];
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
@@ -175,7 +88,7 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
-function CodeBlock({ block }: { block: CodeBlock }) {
+function CodeBlockUI({ block }: { block: CodeBlock }) {
   return (
     <div
       className="rounded-[6px] overflow-hidden border mt-2"
@@ -206,53 +119,258 @@ function CodeBlock({ block }: { block: CodeBlock }) {
   );
 }
 
-function RichText({ text }: { text: string }) {
-  const parts = text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
+// ── Markdown Renderer ────────────────────────────────────────────────────────
+// Lightweight markdown-to-JSX renderer — no external library.
+// Handles: headings (# ## ###), bullet lists (- *), numbered lists (1.),
+//          bold (**), italic (*_), inline code (`), links ([text](url)),
+//          horizontal rules (---), and paragraph / line breaks.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Render inline markdown spans: **bold**, *italic*, `code`, [link](url) */
+function InlineMarkdown({ text }: { text: string }) {
+  // Pattern order matters — longer patterns first
+  const TOKEN = /(`[^`]+`|\*\*[^*]+\*\*|\*[^*]+\*|_[^_]+_|\[([^\]]+)\]\(([^)]+)\))/g;
+  const parts: React.ReactNode[] = [];
+  let last = 0;
+  let m: RegExpExecArray | null;
+
+  while ((m = TOKEN.exec(text)) !== null) {
+    // Push plain text before this token
+    if (m.index > last) parts.push(<span key={last}>{text.slice(last, m.index)}</span>);
+
+    const raw = m[0];
+
+    if (raw.startsWith("`")) {
+      parts.push(
+        <code
+          key={m.index}
+          className="rounded px-[5px] py-[1px] text-[11px] font-mono"
+          style={{
+            background: "var(--bg-activity)",
+            color:      "var(--tok-string)",
+            border:     "1px solid var(--border-light)",
+          }}
+        >
+          {raw.slice(1, -1)}
+        </code>,
+      );
+    } else if (raw.startsWith("**")) {
+      parts.push(
+        <strong key={m.index} style={{ color: "var(--text-active)", fontWeight: 600 }}>
+          {raw.slice(2, -2)}
+        </strong>,
+      );
+    } else if (raw.startsWith("*") || raw.startsWith("_")) {
+      parts.push(
+        <em key={m.index} style={{ color: "var(--text-secondary)", fontStyle: "italic" }}>
+          {raw.slice(1, -1)}
+        </em>,
+      );
+    } else if (raw.startsWith("[")) {
+      // [label](url)
+      parts.push(
+        <a
+          key={m.index}
+          href={m[3]}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: "var(--accent)", textDecoration: "underline" }}
+        >
+          {m[2]}
+        </a>,
+      );
+    } else {
+      parts.push(<span key={m.index}>{raw}</span>);
+    }
+
+    last = m.index + raw.length;
+  }
+
+  if (last < text.length) parts.push(<span key={last}>{text.slice(last)}</span>);
+  return <>{parts}</>;
+}
+
+type MdBlock =
+  | { type: "h1" | "h2" | "h3"; text: string }
+  | { type: "ul"; items: string[] }
+  | { type: "ol"; items: string[] }
+  | { type: "hr" }
+  | { type: "p"; text: string };
+
+/** Parse a markdown string into a list of block descriptors. */
+function parseMd(raw: string): MdBlock[] {
+  const lines = raw.split(/\r?\n/);
+  const blocks: MdBlock[] = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i];
+
+    // Heading
+    const h3 = line.match(/^###\s+(.+)/);
+    const h2 = line.match(/^##\s+(.+)/);
+    const h1 = line.match(/^#\s+(.+)/);
+    if (h3) { blocks.push({ type: "h3", text: h3[1] }); i++; continue; }
+    if (h2) { blocks.push({ type: "h2", text: h2[1] }); i++; continue; }
+    if (h1) { blocks.push({ type: "h1", text: h1[1] }); i++; continue; }
+
+    // Horizontal rule
+    if (/^[-*_]{3,}\s*$/.test(line)) { blocks.push({ type: "hr" }); i++; continue; }
+
+    // Unordered list: lines starting with - or *
+    if (/^[-*]\s/.test(line)) {
+      const items: string[] = [];
+      while (i < lines.length && /^[-*]\s/.test(lines[i])) {
+        items.push(lines[i].replace(/^[-*]\s+/, ""));
+        i++;
+      }
+      blocks.push({ type: "ul", items });
+      continue;
+    }
+
+    // Ordered list: lines starting with digit.
+    if (/^\d+\.\s/.test(line)) {
+      const items: string[] = [];
+      while (i < lines.length && /^\d+\.\s/.test(lines[i])) {
+        items.push(lines[i].replace(/^\d+\.\s+/, ""));
+        i++;
+      }
+      blocks.push({ type: "ol", items });
+      continue;
+    }
+
+    // Empty line — skip (natural paragraph break between blocks)
+    if (line.trim() === "") { i++; continue; }
+
+    // Paragraph — collect consecutive non-special lines
+    const paraLines: string[] = [];
+    while (
+      i < lines.length &&
+      lines[i].trim() !== "" &&
+      !/^#{1,3}\s/.test(lines[i]) &&
+      !/^[-*]\s/.test(lines[i]) &&
+      !/^\d+\.\s/.test(lines[i]) &&
+      !/^[-*_]{3,}\s*$/.test(lines[i])
+    ) {
+      paraLines.push(lines[i]);
+      i++;
+    }
+    if (paraLines.length) blocks.push({ type: "p", text: paraLines.join(" ") });
+  }
+
+  return blocks;
+}
+
+/** Full markdown renderer — converts raw markdown string to styled JSX. */
+function MarkdownRenderer({ text }: { text: string }) {
+  const blocks = parseMd(text);
+
   return (
-    <>
-      {parts.map((part, i) => {
-        if (part.startsWith("**") && part.endsWith("**")) {
-          return (
-            <strong key={i} style={{ color: "var(--text-active)", fontWeight: 600 }}>
-              {part.slice(2, -2)}
-            </strong>
-          );
+    <div className="flex flex-col gap-[6px]">
+      {blocks.map((block, idx) => {
+        switch (block.type) {
+          case "h1":
+            return (
+              <p key={idx} className="text-[13.5px] font-bold mt-1" style={{ color: "var(--text-active)" }}>
+                <InlineMarkdown text={block.text} />
+              </p>
+            );
+          case "h2":
+            return (
+              <p key={idx} className="text-[12.5px] font-semibold mt-1" style={{ color: "var(--text-active)" }}>
+                <InlineMarkdown text={block.text} />
+              </p>
+            );
+          case "h3":
+            return (
+              <p
+                key={idx}
+                className="text-[11.5px] font-semibold uppercase tracking-wide mt-[6px]"
+                style={{ color: "var(--accent)" }}
+              >
+                <InlineMarkdown text={block.text} />
+              </p>
+            );
+          case "ul":
+            return (
+              <ul key={idx} className="flex flex-col gap-[3px] pl-1">
+                {block.items.map((item, j) => (
+                  <li key={j} className="flex gap-[7px] items-start text-[12.5px]">
+                    <span
+                      className="flex-shrink-0 mt-[6px] w-[4px] h-[4px] rounded-full"
+                      style={{ background: "var(--accent)", flexShrink: 0 }}
+                    />
+                    <span style={{ color: "var(--text-primary)" }}>
+                      <InlineMarkdown text={item} />
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            );
+          case "ol":
+            return (
+              <ol key={idx} className="flex flex-col gap-[3px] pl-1">
+                {block.items.map((item, j) => (
+                  <li key={j} className="flex gap-[7px] items-start text-[12.5px]">
+                    <span
+                      className="flex-shrink-0 text-[10px] font-mono min-w-[14px] mt-[1px] text-right"
+                      style={{ color: "var(--accent)" }}
+                    >
+                      {j + 1}.
+                    </span>
+                    <span style={{ color: "var(--text-primary)" }}>
+                      <InlineMarkdown text={item} />
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            );
+          case "hr":
+            return (
+              <hr
+                key={idx}
+                className="my-1 border-0 h-px"
+                style={{ background: "var(--border-light)" }}
+              />
+            );
+          case "p":
+          default:
+            return (
+              <p key={idx} className="text-[12.5px] leading-[1.65]" style={{ color: "var(--text-primary)" }}>
+                <InlineMarkdown text={block.text} />
+              </p>
+            );
         }
-        if (part.startsWith("`") && part.endsWith("`")) {
-          return (
-            <code
-              key={i}
-              className="rounded px-[5px] py-[1px] text-[11px] font-mono"
-              style={{
-                background: "var(--bg-activity)",
-                color:      "var(--tok-string)",
-                border:     "1px solid var(--border-light)",
-              }}
-            >
-              {part.slice(1, -1)}
-            </code>
-          );
-        }
-        return <span key={i}>{part}</span>;
       })}
-    </>
+    </div>
   );
 }
 
-function MessageBubble({ msg }: { msg: Message }) {
-  const isUser = msg.role === "user";
+/** Renders a single message bubble (user or assistant). */
+function MessageBubble({
+  msg,
+  onRetry,
+}: {
+  msg: Message;
+  onRetry?: () => void;
+}) {
+  const isUser  = msg.role === "user";
+  const isError = msg.error === true;
 
   return (
     <div className={`flex gap-3 ${isUser ? "flex-row-reverse" : "flex-row"} items-start`}>
+      {/* Avatar */}
       {!isUser && (
         <div
           className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[13px] mt-[2px]"
           style={{
-            background: "linear-gradient(135deg, var(--accent), var(--tok-type))",
-            boxShadow:  "0 2px 8px rgba(0,0,0,0.3)",
+            background: isError
+              ? "linear-gradient(135deg, #e05a5a, #c0392b)"
+              : "linear-gradient(135deg, var(--accent), var(--tok-type))",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
           }}
         >
-          ✦
+          {isError ? "!" : "✦"}
         </div>
       )}
       {isUser && (
@@ -278,6 +396,13 @@ function MessageBubble({ msg }: { msg: Message }) {
                   color:      "var(--text-active)",
                   borderBottomRightRadius: "3px",
                 }
+              : isError
+              ? {
+                  background: "rgba(224, 90, 90, 0.1)",
+                  color:      "#e05a5a",
+                  border:     "1px solid rgba(224, 90, 90, 0.3)",
+                  borderBottomLeftRadius: "3px",
+                }
               : {
                   background: "var(--bg-hover)",
                   color:      "var(--text-primary)",
@@ -287,7 +412,7 @@ function MessageBubble({ msg }: { msg: Message }) {
           }
         >
           {msg.streaming ? (
-            <span>
+            <span className="text-[12.5px] leading-[1.65]">
               {msg.content}
               <span
                 className="inline-block w-[2px] h-[13px] ml-[2px] align-middle blink-cursor"
@@ -295,14 +420,34 @@ function MessageBubble({ msg }: { msg: Message }) {
               />
             </span>
           ) : (
-            <RichText text={msg.content} />
+            <MarkdownRenderer text={msg.content} />
           )}
         </div>
 
+        {/* Code block (non-streaming only) */}
         {!msg.streaming && msg.codeBlock && (
           <div className="w-full">
-            <CodeBlock block={msg.codeBlock} />
+            <CodeBlockUI block={msg.codeBlock} />
           </div>
+        )}
+
+        {/* Retry button for retryable errors */}
+        {isError && msg.retryable && onRetry && (
+          <button
+            onClick={onRetry}
+            className="flex items-center gap-1 px-2 py-[3px] rounded text-[11px] transition-colors duration-150 mt-1"
+            style={{
+              color:      "#e05a5a",
+              border:     "1px solid rgba(224, 90, 90, 0.4)",
+              background: "rgba(224, 90, 90, 0.08)",
+            }}
+          >
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="1 4 1 10 7 10" />
+              <path d="M3.51 15a9 9 0 1 0 .49-3.51" />
+            </svg>
+            Retry
+          </button>
         )}
 
         <span
@@ -350,6 +495,28 @@ function TypingIndicator() {
   );
 }
 
+/** Small dot in the header showing backend health status. */
+function HealthBadge({ healthy }: { healthy: boolean | null }) {
+  if (healthy === null) return null; // still checking
+
+  return (
+    <span
+      title={healthy ? "Backend connected" : "Backend offline — responses may fail"}
+      className="flex items-center gap-1 text-[10px] select-none"
+      style={{ color: healthy ? "var(--status-success, #4caf50)" : "#e05a5a" }}
+    >
+      <span
+        className="w-[6px] h-[6px] rounded-full"
+        style={{
+          background: healthy ? "var(--status-success, #4caf50)" : "#e05a5a",
+          boxShadow:  healthy ? "0 0 4px var(--status-success, #4caf50)" : "0 0 4px #e05a5a",
+        }}
+      />
+      {healthy ? "Live" : "Offline"}
+    </span>
+  );
+}
+
 // ── Main Component ────────────────────────────────────────────────────────────
 
 interface Props {
@@ -361,34 +528,46 @@ export default function CopilotPanel({ activeFile }: Props) {
   const actions           = useAppActions();
   const isOpen            = activePanelId === "copilot";
 
-  const [messages,           setMessages]           = useState<Message[]>([]);
-  const [input,              setInput]              = useState("");
-  const [isTyping,           setIsTyping]           = useState(false);
-  const [selectedModel,      setSelectedModel]      = useState("Gemini 3.5 Flash (Medium)");
-  const [modelDropdownOpen,  setModelDropdownOpen]  = useState(false);
+  const [messages,          setMessages]          = useState<Message[]>([]);
+  const [input,             setInput]             = useState("");
+  const [isTyping,          setIsTyping]          = useState(false);
+  const [backendHealthy,    setBackendHealthy]    = useState<boolean | null>(null);
 
   // Layout sizing state: default 350px width, resizable
-  const [width,              setWidth]              = useState(350);
-  const [isDragging,         setIsDragging]         = useState(false);
-  const [isMobile,           setIsMobile]           = useState(false);
+  const [width,             setWidth]             = useState(350);
+  const [isDragging,        setIsDragging]        = useState(false);
+  const [isMobile,          setIsMobile]          = useState(false);
 
+  // Refs
   const bottomRef       = useRef<HTMLDivElement>(null);
   const inputRef        = useRef<HTMLTextAreaElement>(null);
   const threadScrollRef = useRef<HTMLDivElement>(null);
+  const abortRef        = useRef<AbortController | null>(null);
 
-  // Track viewport dimension changes for mobile layout checks
+  // Last user message text — kept for the Retry button
+  const lastUserMsgRef  = useRef<string>("");
+
+  // ── Health check on mount ────────────────────────────────────────────────
+
+  useEffect(() => {
+    checkHealth().then(setBackendHealthy);
+    // Re-check every 30 seconds in case the backend restarts
+    const id = setInterval(() => checkHealth().then(setBackendHealthy), 30_000);
+    return () => clearInterval(id);
+  }, []);
+
+  // ── Responsive layout ────────────────────────────────────────────────────
+
   useEffect(() => {
     if (typeof window === "undefined") return;
-
-    function checkMobile() {
-      setIsMobile(window.innerWidth < 768);
-    }
+    function checkMobile() { setIsMobile(window.innerWidth < 768); }
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Fetch initial width configurations on client mount
+  // ── Persist panel width ──────────────────────────────────────────────────
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const savedWidth = localStorage.getItem("portfolio-copilot-width");
@@ -401,14 +580,14 @@ export default function CopilotPanel({ activeFile }: Props) {
     }
   }, []);
 
-  // Persist resized width modifications upon mouse drag release
   useEffect(() => {
     if (!isDragging && typeof window !== "undefined") {
       localStorage.setItem("portfolio-copilot-width", width.toString());
     }
   }, [width, isDragging]);
 
-  // Scroll active window viewport to bottom on new messaging additions
+  // ── Auto-scroll on new messages ──────────────────────────────────────────
+
   useEffect(() => {
     if (threadScrollRef.current) {
       threadScrollRef.current.scrollTop = threadScrollRef.current.scrollHeight;
@@ -416,28 +595,38 @@ export default function CopilotPanel({ activeFile }: Props) {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
-  // Set keyboard focus on core textarea upon open panel transition
+  // ── Focus textarea on open ───────────────────────────────────────────────
+
   useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 300);
-    }
+    if (isOpen) setTimeout(() => inputRef.current?.focus(), 300);
   }, [isOpen]);
 
-  // Close dropdown on click outside
+  // ── Cancel any in-flight request when panel closes ───────────────────────
+
   useEffect(() => {
-    if (!modelDropdownOpen) return;
-    function handleDocumentClick() {
-      setModelDropdownOpen(false);
-    }
-    document.addEventListener("click", handleDocumentClick);
-    return () => document.removeEventListener("click", handleDocumentClick);
-  }, [modelDropdownOpen]);
+    if (!isOpen) abortRef.current?.abort();
+  }, [isOpen]);
+
+  // ── Build conversation history from current messages ─────────────────────
+
+  function buildHistory(): HistoryMessage[] {
+    // Convert the last 10 non-error messages to the OpenAI format
+    return messages
+      .filter((m) => !m.error && !m.streaming)
+      .slice(-10)
+      .map((m) => ({ role: m.role, content: m.content }));
+  }
+
+  // ── Core send logic ──────────────────────────────────────────────────────
 
   const sendMessage = useCallback(
-    (text: string) => {
+    async (text: string) => {
       const trimmed = text.trim();
       if (!trimmed || isTyping) return;
 
+      lastUserMsgRef.current = trimmed;
+
+      // Add user message
       const userMsg: Message = {
         id:        uid(),
         role:      "user",
@@ -448,42 +637,86 @@ export default function CopilotPanel({ activeFile }: Props) {
       setInput("");
       setIsTyping(true);
 
-      if (inputRef.current) {
-        inputRef.current.style.height = "auto";
+      if (inputRef.current) inputRef.current.style.height = "auto";
+
+      // Create abort controller for this request
+      abortRef.current = new AbortController();
+
+      // Add streaming placeholder for assistant
+      const streamId = uid();
+      setMessages((prev) => [
+        ...prev,
+        { id: streamId, role: "assistant", content: "", timestamp: new Date(), streaming: true },
+      ]);
+      setIsTyping(false);
+
+      try {
+        await streamChat(
+          {
+            message: trimmed,
+            history: buildHistory(),
+          },
+          (chunk) => {
+            // Append each token to the streaming message
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === streamId
+                  ? { ...m, content: m.content + chunk }
+                  : m,
+              ),
+            );
+          },
+          abortRef.current.signal,
+        );
+
+        // Mark streaming complete
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === streamId ? { ...m, streaming: false } : m,
+          ),
+        );
+
+      } catch (err) {
+        // Remove the empty streaming placeholder
+        setMessages((prev) => prev.filter((m) => m.id !== streamId));
+
+        if (err instanceof ChatApiError) {
+          const errMsg: Message = {
+            id:        uid(),
+            role:      "assistant",
+            content:   err.message,
+            timestamp: new Date(),
+            error:     true,
+            retryable: err.retryable,
+          };
+          setMessages((prev) => [...prev, errMsg]);
+
+          // Update health badge if we know backend is unreachable
+          if (err.status === undefined) setBackendHealthy(false);
+        } else {
+          const errMsg: Message = {
+            id:        uid(),
+            role:      "assistant",
+            content:   "Something went wrong. Please try again.",
+            timestamp: new Date(),
+            error:     true,
+            retryable: true,
+          };
+          setMessages((prev) => [...prev, errMsg]);
+        }
       }
-
-      // Simulate thinking delay (800–1400ms)
-      const thinkDelay = 800 + Math.random() * 600;
-      setTimeout(() => {
-        const { answer, code } = getResponse(trimmed);
-
-        // Add streaming placeholder
-        const streamId = uid();
-        setMessages((prev) => [
-          ...prev,
-          { id: streamId, role: "assistant", content: "", timestamp: new Date(), streaming: true },
-        ]);
-        setIsTyping(false);
-
-        // Stream text character by character
-        let i = 0;
-        const interval = setInterval(() => {
-          i += Math.ceil(Math.random() * 4 + 1); // 2–5 chars per tick
-          const chunk = answer.slice(0, i);
-          const done  = i >= answer.length;
-          setMessages((prev) =>
-            prev.map((m) =>
-              m.id === streamId
-                ? { ...m, content: chunk, streaming: !done, codeBlock: done ? code : undefined }
-                : m
-            )
-          );
-          if (done) clearInterval(interval);
-        }, 22);
-      }, thinkDelay);
     },
-    [isTyping]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [isTyping, messages],
   );
+
+  /** Retry the last user message (called from the error bubble Retry button). */
+  const handleRetry = useCallback(() => {
+    if (!lastUserMsgRef.current) return;
+    // Remove the error message, then re-send
+    setMessages((prev) => prev.filter((m) => !m.error));
+    sendMessage(lastUserMsgRef.current);
+  }, [sendMessage]);
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -492,170 +725,128 @@ export default function CopilotPanel({ activeFile }: Props) {
     }
   }
 
-  // Width adjustment trigger
-  const startDrag = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault();
-      setIsDragging(true);
+  // ── Drag-to-resize ───────────────────────────────────────────────────────
 
-      const handleMouseMove = (moveEvent: MouseEvent) => {
-        const newWidth = window.innerWidth - moveEvent.clientX;
-        if (newWidth >= 280 && newWidth <= 600) {
-          setWidth(newWidth);
-        }
-      };
+  const startDrag = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
 
-      const handleMouseUp = () => {
-        setIsDragging(false);
-        document.removeEventListener("mousemove", handleMouseMove);
-        document.removeEventListener("mouseup", handleMouseUp);
-      };
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      const newWidth = window.innerWidth - moveEvent.clientX;
+      if (newWidth >= 280 && newWidth <= 600) setWidth(newWidth);
+    };
 
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
-    },
-    []
-  );
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
 
-  const renderInputCard = () => {
-    return (
-      <div
-        className="flex flex-col rounded-xl border p-3 transition-colors duration-150 relative"
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+  }, []);
+
+  // ── Input card ───────────────────────────────────────────────────────────
+
+  const renderInputCard = () => (
+    <div
+      className="flex flex-col rounded-xl border p-3 transition-colors duration-150 relative"
+      style={{
+        background:  "var(--bg-input)",
+        borderColor: "var(--border)",
+      }}
+      onFocusCapture={(e) => {
+        (e.currentTarget as HTMLElement).style.borderColor = "var(--border-focus)";
+      }}
+      onBlurCapture={(e) => {
+        (e.currentTarget as HTMLElement).style.borderColor = "var(--border)";
+      }}
+    >
+      <textarea
+        ref={inputRef}
+        rows={1}
+        value={input}
+        onChange={(e) => {
+          setInput(e.target.value);
+          e.target.style.height = "auto";
+          e.target.style.height = Math.min(e.target.scrollHeight, 140) + "px";
+        }}
+        onKeyDown={handleKeyDown}
+        placeholder="Ask anything about Rohan — skills, projects, contact…"
+        className="w-full bg-transparent outline-none border-none resize-none text-[13px] leading-[1.5] py-[2px] text-text-active placeholder-text-muted"
         style={{
-          background:  "var(--bg-input)",
-          borderColor: "var(--border)",
+          fontFamily: "var(--font-inter)",
+          minHeight:  "36px",
+          maxHeight:  "140px",
+          caretColor: "var(--accent)",
         }}
-        onFocusCapture={(e) => {
-          (e.currentTarget as HTMLElement).style.borderColor = "var(--border-focus)";
-        }}
-        onBlurCapture={(e) => {
-          (e.currentTarget as HTMLElement).style.borderColor = "var(--border)";
-        }}
-      >
-        <textarea
-          ref={inputRef}
-          rows={1}
-          value={input}
-          onChange={(e) => {
-            setInput(e.target.value);
-            // Auto-grow
-            e.target.style.height = "auto";
-            e.target.style.height = Math.min(e.target.scrollHeight, 140) + "px";
-          }}
-          onKeyDown={handleKeyDown}
-          placeholder="Ask anything, @ to mention, / for actions"
-          className="w-full bg-transparent outline-none border-none resize-none text-[13px] leading-[1.5] py-[2px] text-text-active placeholder-text-muted"
-          style={{
-            fontFamily:     "var(--font-inter)",
-            minHeight:      "36px",
-            maxHeight:      "140px",
-            caretColor:     "var(--accent)",
-          }}
-          aria-label="Chat input"
-          disabled={isTyping}
-        />
-        
-        {/* Lower row with controls */}
-        <div className="flex items-center justify-between mt-2 pt-1">
-          <div className="flex items-center gap-1.5 relative">
-            {/* Plus context button */}
-            <button
-              type="button"
-              className="flex items-center justify-center w-6 h-6 rounded text-text-secondary hover:text-text-active hover:bg-hover transition-colors"
-              title="Add Context"
-              aria-label="Add Context"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-            </button>
-            
-            {/* Model Selector Dropdown Button */}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setModelDropdownOpen((prev) => !prev);
-              }}
-              className="flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] text-text-secondary hover:text-text-active hover:bg-hover border border-border-light transition-colors select-none"
-              style={{
-                borderColor: "var(--border-light)",
-                background:  "var(--bg-sidebar)",
-              }}
-            >
-              <span>{selectedModel}</span>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="opacity-70">
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            </button>
+        aria-label="Chat input"
+        disabled={isTyping}
+      />
 
-            {/* Model Dropdown Menu */}
-            {modelDropdownOpen && (
-              <div
-                className="absolute left-[30px] bottom-[30px] w-[180px] rounded-lg border shadow-lg z-50 flex flex-col py-1 overflow-hidden"
-                style={{
-                  background:  "var(--bg-editor)",
-                  borderColor: "var(--border)",
-                }}
-              >
-                {MODELS.map((model) => (
-                  <button
-                    key={model}
-                    type="button"
-                    onClick={() => {
-                      setSelectedModel(model);
-                      setModelDropdownOpen(false);
-                    }}
-                    className={`px-3 py-1.5 text-[11.5px] text-left cursor-pointer transition-colors w-full ${
-                      selectedModel === model
-                        ? "bg-selected text-text-active font-medium"
-                        : "text-text-primary hover:bg-hover hover:text-text-active"
-                    }`}
-                  >
-                    {model}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-          
-          {/* Action button (mic or send) */}
+      {/* Lower row */}
+      <div className="flex items-center justify-between mt-2 pt-1">
+        <div className="flex items-center gap-1.5">
+          {/* Plus / context button */}
           <button
             type="button"
-            onClick={() => {
-              if (input.trim() !== "") {
-                sendMessage(input);
-              }
-            }}
-            disabled={(input.trim() === "" && isTyping) || isTyping}
-            className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-full transition-all duration-150"
-            style={{
-              background: input.trim() !== "" ? "var(--accent)" : "var(--bg-selected)",
-              color:      "#fff",
-              cursor:     isTyping || (input.trim() === "") ? "not-allowed" : "pointer",
-            }}
-            aria-label={input.trim() !== "" ? "Send message" : "Voice input"}
+            className="flex items-center justify-center w-6 h-6 rounded text-text-secondary hover:text-text-active hover:bg-hover transition-colors"
+            title="Add Context"
+            aria-label="Add Context"
           >
-            {input.trim() !== "" ? (
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-              </svg>
-            ) : (
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-                <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-                <line x1="12" y1="19" x2="12" y2="23" />
-                <line x1="8" y1="23" x2="16" y2="23" />
-              </svg>
-            )}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
           </button>
-        </div>
-      </div>
-    );
-  };
 
-  // ── Layout Style Calculations ──────────────────────────────────────────────
+          {/* Model label (read-only — model set in backend .env) */}
+          <span
+            className="flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] select-none"
+            style={{
+              color:       "var(--text-secondary)",
+              borderColor: "var(--border-light)",
+              background:  "var(--bg-sidebar)",
+              border:      "1px solid var(--border-light)",
+            }}
+            title="LLM model is configured in the backend .env"
+          >
+            LLaMA 3.3 · Groq
+          </span>
+        </div>
+
+        {/* Send / mic button */}
+        <button
+          type="button"
+          onClick={() => { if (input.trim()) sendMessage(input); }}
+          disabled={!input.trim() || isTyping}
+          className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-full transition-all duration-150"
+          style={{
+            background: input.trim() ? "var(--accent)" : "var(--bg-selected)",
+            color:      "#fff",
+            cursor:     isTyping || !input.trim() ? "not-allowed" : "pointer",
+            opacity:    !input.trim() && !isTyping ? 0.5 : 1,
+          }}
+          aria-label={input.trim() ? "Send message" : "Voice input"}
+        >
+          {input.trim() ? (
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+            </svg>
+          ) : (
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+              <line x1="12" y1="19" x2="12" y2="23" />
+              <line x1="8" y1="23" x2="16" y2="23" />
+            </svg>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+
+  // ── Layout style ─────────────────────────────────────────────────────────
 
   const containerClass = isMobile
     ? `fixed top-0 right-0 h-full z-40 flex flex-col overflow-hidden w-full`
@@ -683,9 +874,11 @@ export default function CopilotPanel({ activeFile }: Props) {
     ? { width: "100%", height: "100%", display: "flex", flexDirection: "column" as const }
     : { width: `${width}px`, height: "100%", display: "flex", flexDirection: "column" as const };
 
+  // ── Render ───────────────────────────────────────────────────────────────
+
   return (
     <>
-      {/* Mobile backdrop overlay */}
+      {/* Mobile backdrop */}
       {isMobile && isOpen && (
         <div
           className="fixed inset-0 z-30 md:hidden"
@@ -695,18 +888,14 @@ export default function CopilotPanel({ activeFile }: Props) {
         />
       )}
 
-      <FocusTrap
-        active={isOpen}
-        className={containerClass}
-        style={containerStyle}
-      >
+      <FocusTrap active={isOpen} className={containerClass} style={containerStyle}>
         <div
           role="dialog"
           aria-modal="true"
           aria-label="AI Agent Chat"
           style={innerWrapperStyle}
         >
-          {/* Resize Handle (Desktop Only, active when open) */}
+          {/* Resize handle (desktop only) */}
           {!isMobile && isOpen && (
             <div
               onMouseDown={startDrag}
@@ -714,19 +903,27 @@ export default function CopilotPanel({ activeFile }: Props) {
             />
           )}
 
-          {/* ── Header ─────────────────────────────────────────────────────── */}
+          {/* ── Header ───────────────────────────────────────────────────── */}
           <div
             className="flex items-center justify-between px-4 py-[10px] flex-shrink-0 border-b relative"
             style={{ borderColor: "var(--border)", background: "var(--bg-sidebar)" }}
           >
-            <span className="text-[13px] font-semibold text-text-primary select-none font-sans">
-              Agent
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-[13px] font-semibold text-text-primary select-none font-sans">
+                Agent
+              </span>
+              <HealthBadge healthy={backendHealthy} />
+            </div>
 
             <div className="flex items-center gap-1.5 text-text-secondary">
-              {/* New chat button (+) */}
+              {/* New chat */}
               <button
-                onClick={() => setMessages([])}
+                onClick={() => {
+                  abortRef.current?.abort();
+                  setMessages([]);
+                  setIsTyping(false);
+                  lastUserMsgRef.current = "";
+                }}
                 className="flex items-center justify-center w-6 h-6 rounded hover:bg-hover hover:text-text-active transition-colors"
                 title="New chat"
                 aria-label="New chat"
@@ -737,7 +934,7 @@ export default function CopilotPanel({ activeFile }: Props) {
                 </svg>
               </button>
 
-              {/* History button */}
+              {/* History */}
               <button
                 onClick={() => alert("History: No past chats recorded.")}
                 className="flex items-center justify-center w-6 h-6 rounded hover:bg-hover hover:text-text-active transition-colors"
@@ -751,7 +948,7 @@ export default function CopilotPanel({ activeFile }: Props) {
                 </svg>
               </button>
 
-              {/* Menu (...) */}
+              {/* Options */}
               <button
                 onClick={() => alert("Options: Model selection and custom agent preferences.")}
                 className="flex items-center justify-center w-6 h-6 rounded hover:bg-hover hover:text-text-active transition-colors"
@@ -779,10 +976,10 @@ export default function CopilotPanel({ activeFile }: Props) {
             </div>
           </div>
 
-          {/* ── Main workspace content wrapper ────────────────────────────── */}
+          {/* ── Main content ─────────────────────────────────────────────── */}
           <div className="flex-1 flex flex-col overflow-hidden relative">
             {messages.length === 0 ? (
-              /* Empty State */
+              /* Empty state */
               <div className="flex-1 flex flex-col justify-center px-4 pb-16">
                 <h1 className="text-[28px] font-bold tracking-tight mb-5 text-text-active px-2 font-sans select-none">
                   portfolio
@@ -790,7 +987,7 @@ export default function CopilotPanel({ activeFile }: Props) {
                 {renderInputCard()}
               </div>
             ) : (
-              /* Message Thread List */
+              /* Message thread */
               <div className="flex-1 flex flex-col overflow-hidden">
                 <div
                   ref={threadScrollRef}
@@ -800,28 +997,31 @@ export default function CopilotPanel({ activeFile }: Props) {
                   aria-live="polite"
                 >
                   {messages.map((msg) => (
-                    <MessageBubble key={msg.id} msg={msg} />
+                    <MessageBubble
+                      key={msg.id}
+                      msg={msg}
+                      onRetry={msg.error && msg.retryable ? handleRetry : undefined}
+                    />
                   ))}
                   {isTyping && <TypingIndicator />}
                   <div ref={bottomRef} />
                 </div>
-                
-                {/* Input Card at the bottom */}
+
+                {/* Input card */}
                 <div className="px-3 pb-2 pt-1 border-t" style={{ borderColor: "var(--border-light)" }}>
                   {renderInputCard()}
                 </div>
               </div>
             )}
-            
-            {/* Disclaimer Footer (always at the very bottom of the flex container) */}
+
+            {/* Disclaimer */}
             <div
               className="px-4 py-3 text-[11px] text-center select-none font-sans"
               style={{ color: "var(--text-muted)" }}
             >
-              AI may make mistakes. Double-check all generated code.
+              AI may make mistakes. Double-check important information.
             </div>
           </div>
-
         </div>
       </FocusTrap>
     </>
